@@ -15,10 +15,27 @@ import {
 
 // ─── Wallet options ───────────────────────────────────────────────────────────
 const EWALLET_TYPES: { label: string; value: string; icon: string }[] = [
-  { label: 'GCash',      value: 'gcash',      icon: 'mobile' },
-  { label: 'Maya',       value: 'maya',       icon: 'mobile' },
-  { label: 'ShopeePay', value: 'shopeepay',  icon: 'shopping-bag' },
-  { label: 'GrabPay',   value: 'grabpay',    icon: 'car' },
+  { label: 'GCash',                                  value: 'gcash',             icon: 'mobile' },
+  { label: 'GCash (GCrypto)',                        value: 'gcash_crypto',      icon: 'mobile' },
+  { label: 'Maya (PayMaya)',                         value: 'maya',              icon: 'mobile' },
+  { label: 'Maya Crypto',                            value: 'maya_crypto',       icon: 'mobile' },
+  { label: 'GrabPay',                                value: 'grabpay',           icon: 'mobile' },
+  { label: 'ShopeePay',                              value: 'shopee_pay',        icon: 'mobile' },
+  { label: 'Coins.ph',                               value: 'coins_ph',          icon: 'mobile' },
+  { label: 'BPI eWallet / BPI Mobile Wallet',        value: 'bpi_ewallet',       icon: 'mobile' },
+  { label: 'UnionBank Online / UnionBank Wallet',    value: 'unionbank_wallet',  icon: 'mobile' },
+  { label: 'BDO Pay',                                value: 'bdo_pay',           icon: 'mobile' },
+  { label: 'Landbank Mobile Banking',                value: 'landbank_mobile',   icon: 'mobile' },
+  { label: 'RCBC DiskarTech',                        value: 'rcbc_diskartech',   icon: 'mobile' },
+  { label: 'Tonik Wallet',                           value: 'tonik',             icon: 'mobile' },
+  { label: 'GoTyme',                                 value: 'gotyme',            icon: 'mobile' },
+  { label: 'Smart Padala Wallet',                    value: 'smart_padala',      icon: 'mobile' },
+  { label: 'PayPal',                                 value: 'paypal',            icon: 'paypal' },
+  { label: 'BayadPay',                               value: 'bayad_pay',         icon: 'mobile' },
+  { label: 'TrueMoney Philippines',                  value: 'truemoney',         icon: 'mobile' },
+  { label: 'Dragonpay',                              value: 'dragonpay',         icon: 'mobile' },
+  { label: 'PDAX Wallet',                            value: 'pdax',              icon: 'mobile' },
+  { label: 'Others',                                 value: 'others',            icon: 'question-circle' },
 ];
 
 const BANK_TYPES: { label: string; value: string; icon: string }[] = [

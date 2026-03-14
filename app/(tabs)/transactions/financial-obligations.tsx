@@ -25,7 +25,7 @@ type InsuranceType = 'life_insurance' | 'health_insurance' | 'car_insurance' | '
 type TaxType = 'real_estate_tax' | 'property_tax' | 'income_tax';
 
 const OBLIGATION_CATEGORIES: { label: string; value: ObligationCategory; icon: string }[] = [
-  { label: 'Loans', value: 'loans', icon: 'bank' },
+  { label: 'Loans/Utang', value: 'loans', icon: 'bank' },
   { label: 'Credit Cards', value: 'credit_cards', icon: 'credit-card' },
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
@@ -42,7 +42,7 @@ const LOAN_TYPES: { label: string; value: LoanType; icon: string }[] = [
   { label: 'SSS Loan', value: 'sss_loan', icon: 'id-card' },
   { label: 'Pag-ibig Loan', value: 'pagibig_loan', icon: 'heart' },
   { label: 'Friend/Family Loan', value: 'friend_family_loan', icon: 'users' },
-  { label: 'Suking Tindahan Loan', value: 'suking_tindahan_loan', icon: 'shopping-basket' },
+  { label: 'Utang sa Tindahan', value: 'suking_tindahan_loan', icon: 'shopping-basket' },
 ];
 
 const INSURANCE_TYPES: { label: string; value: InsuranceType; icon: string }[] = [
@@ -96,6 +96,7 @@ export default function FinancialObligationsScreen() {
   const [loanType, setLoanType] = useState<LoanType | null>(null);
   const [insuranceType, setInsuranceType] = useState<InsuranceType | null>(null);
   const [taxType, setTaxType] = useState<TaxType | null>(null);
+  const [storeName, setStoreName] = useState('');
   const [recurringOption, setRecurringOption] = useState<RecurringOption>('none');
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -255,6 +256,7 @@ export default function FinancialObligationsScreen() {
     setLoanType(null);
     setInsuranceType(null);
     setTaxType(null);
+    setStoreName('');
     setRecurringOption('none');
   };
 
@@ -280,7 +282,9 @@ export default function FinancialObligationsScreen() {
     if (categoryMatch) {
       const categoryLabel = categoryMatch[1].trim();
       console.log('Category label found:', categoryLabel);
-      const foundCategory = OBLIGATION_CATEGORIES.find(c => c.label === categoryLabel);
+      const foundCategory = OBLIGATION_CATEGORIES.find(c => c.label === categoryLabel)
+        ?? (categoryLabel === 'Loans' ? OBLIGATION_CATEGORIES.find(c => c.value === 'loans') : undefined)
+        ?? undefined;
       console.log('Found category object:', foundCategory);
       if (foundCategory) {
         categoryToSet = foundCategory.value;
@@ -318,6 +322,11 @@ export default function FinancialObligationsScreen() {
       if (foundRecurring) recurringToSet = foundRecurring.value;
     }
 
+    // Extract store name (for Utang sa Tindahan)
+    const storeMatch = notes.match(/Store:\s*([^\n|]+)/);
+    if (storeMatch) setStoreName(storeMatch[1].trim());
+    else setStoreName('');
+
     // Extract vendor
     const vendorMatch = notes.match(/Vendor:\s*([^\n]+)/);
     console.log('Vendor match:', vendorMatch);
@@ -332,6 +341,7 @@ export default function FinancialObligationsScreen() {
       !line.startsWith('Type:') &&
       !line.startsWith('Recurring:') &&
       !line.startsWith('Vendor:') &&
+      !line.startsWith('Store:') &&
       !line.startsWith('Status:') &&
       !line.startsWith('Payment Date:') &&
       !line.startsWith('Payment Method:')
@@ -423,6 +433,7 @@ export default function FinancialObligationsScreen() {
     const structuredNotes: string[] = [];
 
     if (categoryInfo) structuredNotes.push(categoryInfo);
+    if (loanType === 'suking_tindahan_loan' && storeName.trim()) structuredNotes.push(`Store: ${storeName.trim()}`);
     if (data.vendor) structuredNotes.push(`Vendor: ${data.vendor}`);
 
     // Add user's custom notes if provided
@@ -675,20 +686,13 @@ export default function FinancialObligationsScreen() {
               <Pressable onPress={handleCloseModal}>
                 <Text className="text-base text-surface-500">Cancel</Text>
               </Pressable>
-              <Text className="text-lg font-bold text-red-600">
-                {editingTransaction ? '🔴 EDIT OBLIGATION V2' : '🔴 ADD OBLIGATION V2'}
+              <Text className="text-lg font-bold text-surface-900 dark:text-surface-100">
+                {editingTransaction ? 'Edit Obligation' : 'Add Obligation'}
               </Text>
               <View className="w-12" />
             </View>
 
             <ScrollView className="flex-1 px-4 pt-4">
-              {/* DEBUG INFO */}
-              <View className="mb-4 p-3 bg-yellow-50 rounded-lg">
-                <Text className="text-xs font-mono text-yellow-900">
-                  DEBUG: category={JSON.stringify(category)} | loanType={JSON.stringify(loanType)} | recurring={JSON.stringify(recurringOption)}
-                </Text>
-              </View>
-
               {/* Category Selection */}
               <View style={{ zIndex: 100 }}>
                 <Select
@@ -714,10 +718,22 @@ export default function FinancialObligationsScreen() {
                     placeholder="Select loan type"
                     options={LOAN_TYPES}
                     value={loanType}
-                    onValueChange={(value) => setLoanType(value as LoanType)}
+                    onValueChange={(value) => {
+                      setLoanType(value as LoanType);
+                      if (value !== 'suking_tindahan_loan') setStoreName('');
+                    }}
                     iconColor="#ea580c"
                   />
                 </View>
+              )}
+
+              {loanType === 'suking_tindahan_loan' && (
+                <Input
+                  label="Store Name"
+                  placeholder="e.g., Aling Nena's Store"
+                  value={storeName}
+                  onChangeText={setStoreName}
+                />
               )}
 
               {category === 'insurance' && (

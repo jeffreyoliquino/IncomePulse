@@ -32,6 +32,26 @@ type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer' | '
 type RecurringOption = 'none' | 'weekly' | 'monthly' | 'yearly';
 type RentSubCategory = 'lot' | 'house' | 'apartment' | 'condo' | 'store_rent' | 'warehouse_rent' | 'office_space' | 'commercial_space' | 'car' | 'parking_space';
 type UtilitySubCategory = 'electricity' | 'water' | 'internet';
+type TransportationSubCategory =
+  | 'tricycle' | 'jeepney' | 'bus' | 'rail_transport' | 'uv_express'
+  | 'multicab' | 'pedicab_sikad' | 'kalesa' | 'pnr' | 'taxi' | 'grab'
+  | 'angkas' | 'joyride' | 'move_it' | 'habal_habal' | 'private_motorcycle'
+  | 'ferry' | 'passenger_boats' | 'bangka_pump_boat' | 'roro' | 'fast_craft';
+type BusSubType = 'city_bus' | 'provincial_bus' | 'p2p_bus';
+type RailSubType = 'lrt1' | 'lrt2' | 'mrt3';
+type UVExpressSubType = 'fx' | 'van';
+type GasFuelStation =
+  | 'petron' | 'shell' | 'caltex' | 'total_energies' | 'seaoil'
+  | 'phoenix' | 'mobil' | 'unioil' | 'flying_v' | 'ptt'
+  | 'cleanfuel' | 'jetti' | 'rephil' | 'city_oil' | 'power_fill'
+  | 'petro_gazz' | 'uno_fuel' | 'stronghold' | 'petro_asia' | 'top_oil'
+  | 'enoc' | 'others';
+type EWalletProvider =
+  | 'gcash' | 'gcash_crypto' | 'maya' | 'maya_crypto' | 'grabpay'
+  | 'shopee_pay' | 'coins_ph' | 'bpi_ewallet' | 'unionbank_wallet'
+  | 'bdo_pay' | 'landbank_mobile' | 'rcbc_diskartech' | 'tonik'
+  | 'gotyme' | 'smart_padala' | 'paypal' | 'bayad_pay'
+  | 'truemoney' | 'dragonpay' | 'pdax' | 'others';
 
 const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string }[] = [
   { label: 'Food & Groceries', value: 'food_groceries', icon: 'shopping-cart' },
@@ -41,7 +61,7 @@ const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string 
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Emergency Fund', value: 'emergency_fund', icon: 'exclamation-triangle' },
   { label: 'Transportation', value: 'transportation', icon: 'bus' },
-  { label: 'Gas', value: 'gas', icon: 'tint' },
+  { label: 'Gas/Fuel', value: 'gas', icon: 'tint' },
   { label: 'Toll Gate', value: 'toll_gate', icon: 'road' },
   { label: 'Travel', value: 'travel', icon: 'plane' },
   { label: 'Vehicle Maintenance', value: 'vehicle_maintenance', icon: 'car' },
@@ -69,7 +89,31 @@ const PAYMENT_METHODS: { label: string; value: PaymentMethod; icon: string }[] =
   { label: 'Credit Card', value: 'credit_card', icon: 'credit-card' },
   { label: 'Debit Card', value: 'debit_card', icon: 'credit-card-alt' },
   { label: 'Bank Transfer', value: 'bank_transfer', icon: 'bank' },
-  { label: 'E-Money/E-Wallet (GCash)', value: 'e_wallet', icon: 'mobile' },
+  { label: 'E-Money/E-Wallet', value: 'e_wallet', icon: 'mobile' },
+];
+
+const E_WALLET_PROVIDERS: { label: string; value: EWalletProvider; icon: string }[] = [
+  { label: 'GCash', value: 'gcash', icon: 'mobile' },
+  { label: 'GCash (GCrypto)', value: 'gcash_crypto', icon: 'mobile' },
+  { label: 'Maya (PayMaya)', value: 'maya', icon: 'mobile' },
+  { label: 'Maya Crypto', value: 'maya_crypto', icon: 'mobile' },
+  { label: 'GrabPay', value: 'grabpay', icon: 'mobile' },
+  { label: 'ShopeePay', value: 'shopee_pay', icon: 'mobile' },
+  { label: 'Coins.ph', value: 'coins_ph', icon: 'mobile' },
+  { label: 'BPI eWallet / BPI Mobile Wallet', value: 'bpi_ewallet', icon: 'mobile' },
+  { label: 'UnionBank Online / UnionBank Wallet', value: 'unionbank_wallet', icon: 'mobile' },
+  { label: 'BDO Pay', value: 'bdo_pay', icon: 'mobile' },
+  { label: 'Landbank Mobile Banking', value: 'landbank_mobile', icon: 'mobile' },
+  { label: 'RCBC DiskarTech', value: 'rcbc_diskartech', icon: 'mobile' },
+  { label: 'Tonik Wallet', value: 'tonik', icon: 'mobile' },
+  { label: 'GoTyme', value: 'gotyme', icon: 'mobile' },
+  { label: 'Smart Padala Wallet', value: 'smart_padala', icon: 'mobile' },
+  { label: 'PayPal', value: 'paypal', icon: 'paypal' },
+  { label: 'BayadPay', value: 'bayad_pay', icon: 'mobile' },
+  { label: 'TrueMoney Philippines', value: 'truemoney', icon: 'mobile' },
+  { label: 'Dragonpay', value: 'dragonpay', icon: 'mobile' },
+  { label: 'PDAX Wallet', value: 'pdax', icon: 'mobile' },
+  { label: 'Others', value: 'others', icon: 'question-circle' },
 ];
 
 const RENT_SUB_CATEGORIES: { label: string; value: RentSubCategory; icon: string }[] = [
@@ -118,6 +162,72 @@ const INTERNET_PROVIDERS: { label: string; value: string; icon: string }[] = [
   { label: 'Others', value: 'others', icon: 'question-circle' },
 ];
 
+const TRANSPORTATION_SUB_CATEGORIES: { label: string; value: TransportationSubCategory; icon: string }[] = [
+  { label: 'Tricycle', value: 'tricycle', icon: 'motorcycle' },
+  { label: 'Jeepney', value: 'jeepney', icon: 'bus' },
+  { label: 'Bus', value: 'bus', icon: 'bus' },
+  { label: 'Rail Transport', value: 'rail_transport', icon: 'train' },
+  { label: 'UV Express', value: 'uv_express', icon: 'car' },
+  { label: 'Multicab', value: 'multicab', icon: 'car' },
+  { label: 'Pedicab / Sikad', value: 'pedicab_sikad', icon: 'bicycle' },
+  { label: 'Kalesa', value: 'kalesa', icon: 'flag' },
+  { label: 'PNR (Philippine National Railways)', value: 'pnr', icon: 'train' },
+  { label: 'Taxi', value: 'taxi', icon: 'taxi' },
+  { label: 'Grab', value: 'grab', icon: 'car' },
+  { label: 'Angkas', value: 'angkas', icon: 'motorcycle' },
+  { label: 'JoyRide', value: 'joyride', icon: 'motorcycle' },
+  { label: 'Move It', value: 'move_it', icon: 'motorcycle' },
+  { label: 'Habal-habal', value: 'habal_habal', icon: 'motorcycle' },
+  { label: 'Private Motorcycle', value: 'private_motorcycle', icon: 'motorcycle' },
+  { label: 'Ferry', value: 'ferry', icon: 'ship' },
+  { label: 'Passenger Boats', value: 'passenger_boats', icon: 'ship' },
+  { label: 'Bangkas / Pump Boats', value: 'bangka_pump_boat', icon: 'ship' },
+  { label: 'RORO (Roll-on Roll-off)', value: 'roro', icon: 'ship' },
+  { label: 'Fast Craft', value: 'fast_craft', icon: 'ship' },
+];
+
+const BUS_SUB_TYPES: { label: string; value: BusSubType; icon: string }[] = [
+  { label: 'City Bus', value: 'city_bus', icon: 'bus' },
+  { label: 'Provincial Bus', value: 'provincial_bus', icon: 'bus' },
+  { label: 'P2P (Point-to-Point) Bus', value: 'p2p_bus', icon: 'bus' },
+];
+
+const RAIL_SUB_TYPES: { label: string; value: RailSubType; icon: string }[] = [
+  { label: 'LRT-1', value: 'lrt1', icon: 'train' },
+  { label: 'LRT-2', value: 'lrt2', icon: 'train' },
+  { label: 'MRT-3', value: 'mrt3', icon: 'train' },
+];
+
+const UV_EXPRESS_SUB_TYPES: { label: string; value: UVExpressSubType; icon: string }[] = [
+  { label: 'FX', value: 'fx', icon: 'car' },
+  { label: 'Van', value: 'van', icon: 'car' },
+];
+
+const GAS_FUEL_STATIONS: { label: string; value: GasFuelStation; icon: string }[] = [
+  { label: 'Petron', value: 'petron', icon: 'tint' },
+  { label: 'Shell', value: 'shell', icon: 'tint' },
+  { label: 'Caltex', value: 'caltex', icon: 'tint' },
+  { label: 'TotalEnergies', value: 'total_energies', icon: 'tint' },
+  { label: 'Seaoil', value: 'seaoil', icon: 'tint' },
+  { label: 'Phoenix Petroleum', value: 'phoenix', icon: 'tint' },
+  { label: 'Mobil', value: 'mobil', icon: 'tint' },
+  { label: 'Unioil', value: 'unioil', icon: 'tint' },
+  { label: 'Flying V', value: 'flying_v', icon: 'tint' },
+  { label: 'PTT Philippines', value: 'ptt', icon: 'tint' },
+  { label: 'Cleanfuel', value: 'cleanfuel', icon: 'tint' },
+  { label: 'Jetti Petroleum', value: 'jetti', icon: 'tint' },
+  { label: 'Rephil', value: 'rephil', icon: 'tint' },
+  { label: 'City Oil', value: 'city_oil', icon: 'tint' },
+  { label: 'Power Fill', value: 'power_fill', icon: 'tint' },
+  { label: 'Petro Gazz', value: 'petro_gazz', icon: 'tint' },
+  { label: 'Uno Fuel', value: 'uno_fuel', icon: 'tint' },
+  { label: 'Stronghold Gasoline', value: 'stronghold', icon: 'tint' },
+  { label: 'PetroAsia', value: 'petro_asia', icon: 'tint' },
+  { label: 'Top Oil', value: 'top_oil', icon: 'tint' },
+  { label: 'ENOC', value: 'enoc', icon: 'tint' },
+  { label: 'Others', value: 'others', icon: 'question-circle' },
+];
+
 const RECURRING_OPTIONS: { label: string; value: RecurringOption; icon: string }[] = [
   { label: 'None', value: 'none', icon: 'times' },
   { label: 'Weekly', value: 'weekly', icon: 'calendar' },
@@ -141,6 +251,12 @@ export default function ExpensesScreen() {
   const [rentSubCategory, setRentSubCategory] = useState<RentSubCategory | null>(null);
   const [utilitySubCategory, setUtilitySubCategory] = useState<UtilitySubCategory | null>(null);
   const [utilityProvider, setUtilityProvider] = useState<string | null>(null);
+  const [transportationSubCategory, setTransportationSubCategory] = useState<TransportationSubCategory | null>(null);
+  const [busSubType, setBusSubType] = useState<BusSubType | null>(null);
+  const [railSubType, setRailSubType] = useState<RailSubType | null>(null);
+  const [uvExpressSubType, setUVExpressSubType] = useState<UVExpressSubType | null>(null);
+  const [gasFuelStation, setGasFuelStation] = useState<GasFuelStation | null>(null);
+  const [eWalletProvider, setEWalletProvider] = useState<EWalletProvider | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [recurringOption, setRecurringOption] = useState<RecurringOption>('none');
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -248,11 +364,37 @@ export default function ExpensesScreen() {
         const subLabel = UTILITY_SUB_CATEGORIES.find(s => s.value === utilitySubCategory)?.label;
         if (subLabel) parts.push(`Type: ${subLabel}`);
       }
+
+      if (expenseCategory === 'gas' && gasFuelStation) {
+        const stationLabel = GAS_FUEL_STATIONS.find(s => s.value === gasFuelStation)?.label;
+        if (stationLabel) parts.push(`Station: ${stationLabel}`);
+      }
+
+      if (expenseCategory === 'transportation' && transportationSubCategory) {
+        const subLabel = TRANSPORTATION_SUB_CATEGORIES.find(s => s.value === transportationSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+        if (transportationSubCategory === 'bus' && busSubType) {
+          const busLabel = BUS_SUB_TYPES.find(s => s.value === busSubType)?.label;
+          if (busLabel) parts.push(`SubType: ${busLabel}`);
+        }
+        if (transportationSubCategory === 'rail_transport' && railSubType) {
+          const railLabel = RAIL_SUB_TYPES.find(s => s.value === railSubType)?.label;
+          if (railLabel) parts.push(`SubType: ${railLabel}`);
+        }
+        if (transportationSubCategory === 'uv_express' && uvExpressSubType) {
+          const uvLabel = UV_EXPRESS_SUB_TYPES.find(s => s.value === uvExpressSubType)?.label;
+          if (uvLabel) parts.push(`SubType: ${uvLabel}`);
+        }
+      }
     }
 
     if (paymentMethod) {
       const methodLabel = PAYMENT_METHODS.find(m => m.value === paymentMethod)?.label;
       if (methodLabel) parts.push(`Payment: ${methodLabel}`);
+      if (paymentMethod === 'e_wallet' && eWalletProvider) {
+        const providerLabel = E_WALLET_PROVIDERS.find(p => p.value === eWalletProvider)?.label;
+        if (providerLabel) parts.push(`EWallet: ${providerLabel}`);
+      }
     }
 
     if (recurringOption && recurringOption !== 'none') {
@@ -268,6 +410,12 @@ export default function ExpensesScreen() {
     setRentSubCategory(null);
     setUtilitySubCategory(null);
     setUtilityProvider(null);
+    setTransportationSubCategory(null);
+    setBusSubType(null);
+    setRailSubType(null);
+    setUVExpressSubType(null);
+    setGasFuelStation(null);
+    setEWalletProvider(null);
     setPaymentMethod(null);
     setRecurringOption('none');
   };
@@ -293,7 +441,7 @@ export default function ExpensesScreen() {
       'dining': 'Dining',
       'shopping': 'Shopping',
       'transportation': 'Transportation',
-      'gas': 'Gas',
+      'gas': 'Gas/Fuel',
       'toll_gate': 'Toll Gate',
       'travel': 'Travel',
       'vehicle_maintenance': 'Vehicle Maintenance',
@@ -375,6 +523,7 @@ export default function ExpensesScreen() {
       'Shopping': 'shopping',
       'Transportation': 'transportation',
       'Gas': 'gas',
+      'Gas/Fuel': 'gas',
       'Toll Gate': 'toll_gate',
       'Travel': 'travel',
       'Vehicle Maintenance': 'vehicle_maintenance',
@@ -453,6 +602,60 @@ export default function ExpensesScreen() {
     return null;
   };
 
+  const parseNotesForGasFuelStation = (notes: string | null): GasFuelStation | null => {
+    if (!notes) return null;
+    const match = notes.match(/Station:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = GAS_FUEL_STATIONS.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForEWalletProvider = (notes: string | null): EWalletProvider | null => {
+    if (!notes) return null;
+    const match = notes.match(/EWallet:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = E_WALLET_PROVIDERS.find(p => p.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForTransportationSubCategory = (notes: string | null): TransportationSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = TRANSPORTATION_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForBusSubType = (notes: string | null): BusSubType | null => {
+    if (!notes) return null;
+    const match = notes.match(/SubType:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = BUS_SUB_TYPES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForRailSubType = (notes: string | null): RailSubType | null => {
+    if (!notes) return null;
+    const match = notes.match(/SubType:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = RAIL_SUB_TYPES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForUVExpressSubType = (notes: string | null): UVExpressSubType | null => {
+    if (!notes) return null;
+    const match = notes.match(/SubType:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = UV_EXPRESS_SUB_TYPES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
   const parseCategoryFromNotes = (notes: string | null): ExpenseCategory | null => {
     if (!notes) return null;
 
@@ -509,6 +712,17 @@ export default function ExpensesScreen() {
             setUtilityProvider(match ? match.value : 'others');
           }
         }
+      } else if (expenseCat === 'gas') {
+        const station = parseNotesForGasFuelStation(transaction.notes);
+        if (station) setGasFuelStation(station);
+      } else if (expenseCat === 'transportation') {
+        const transportSub = parseNotesForTransportationSubCategory(transaction.notes);
+        if (transportSub) {
+          setTransportationSubCategory(transportSub);
+          if (transportSub === 'bus') setBusSubType(parseNotesForBusSubType(transaction.notes));
+          if (transportSub === 'rail_transport') setRailSubType(parseNotesForRailSubType(transaction.notes));
+          if (transportSub === 'uv_express') setUVExpressSubType(parseNotesForUVExpressSubType(transaction.notes));
+        }
       }
     } else {
       setExpenseCategory(null);
@@ -518,6 +732,10 @@ export default function ExpensesScreen() {
     const paymentMeth = parseNotesForPaymentMethod(transaction.notes);
     if (paymentMeth) {
       setPaymentMethod(paymentMeth);
+      if (paymentMeth === 'e_wallet') {
+        const eWallet = parseNotesForEWalletProvider(transaction.notes);
+        if (eWallet) setEWalletProvider(eWallet);
+      }
     } else {
       setPaymentMethod(null);
     }
@@ -540,7 +758,10 @@ export default function ExpensesScreen() {
           line.includes('Category:') ||
           line.includes('Payment:') ||
           line.includes('Recurring:') ||
-          line.includes('Type:')
+          line.includes('Type:') ||
+          line.includes('SubType:') ||
+          line.includes('Station:') ||
+          line.includes('EWallet:')
         ) {
           // Filter out metadata lines (handles both standalone and pipe-separated format)
         } else {
@@ -783,6 +1004,11 @@ export default function ExpensesScreen() {
                     setRentSubCategory(null);
                     setUtilitySubCategory(null);
                     setUtilityProvider(null);
+                    setTransportationSubCategory(null);
+                    setBusSubType(null);
+                    setRailSubType(null);
+                    setUVExpressSubType(null);
+                    setGasFuelStation(null);
                   }}
                   iconColor="#dc2626"
                 />
@@ -846,18 +1072,132 @@ export default function ExpensesScreen() {
                 </View>
               )}
 
+              {expenseCategory === 'gas' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Gas Station"
+                    placeholder="Select gas station"
+                    options={GAS_FUEL_STATIONS}
+                    value={gasFuelStation}
+                    onValueChange={(value) => {
+                      setGasFuelStation(value as GasFuelStation);
+                      if (value !== 'others') {
+                        const label = GAS_FUEL_STATIONS.find(s => s.value === value)?.label;
+                        setValue('vendor', label || '');
+                      } else {
+                        setValue('vendor', '');
+                      }
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'transportation' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Transport Type"
+                    placeholder="Select transport type"
+                    options={TRANSPORTATION_SUB_CATEGORIES}
+                    value={transportationSubCategory}
+                    onValueChange={(value) => {
+                      setTransportationSubCategory(value as TransportationSubCategory);
+                      setBusSubType(null);
+                      setRailSubType(null);
+                      setUVExpressSubType(null);
+                      // Auto-fill vendor for types that have no sub-type
+                      const noSubType = !['bus', 'rail_transport', 'uv_express'].includes(value as string);
+                      if (noSubType) {
+                        const label = TRANSPORTATION_SUB_CATEGORIES.find(s => s.value === value)?.label;
+                        setValue('vendor', label || '');
+                      } else {
+                        setValue('vendor', '');
+                      }
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'transportation' && transportationSubCategory === 'bus' && (
+                <View style={{ zIndex: 90 }}>
+                  <Select
+                    label="Bus Type"
+                    placeholder="Select bus type"
+                    options={BUS_SUB_TYPES}
+                    value={busSubType}
+                    onValueChange={(value) => {
+                      setBusSubType(value as BusSubType);
+                      const label = BUS_SUB_TYPES.find(s => s.value === value)?.label;
+                      setValue('vendor', label || '');
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'transportation' && transportationSubCategory === 'rail_transport' && (
+                <View style={{ zIndex: 90 }}>
+                  <Select
+                    label="Rail Line"
+                    placeholder="Select rail line"
+                    options={RAIL_SUB_TYPES}
+                    value={railSubType}
+                    onValueChange={(value) => {
+                      setRailSubType(value as RailSubType);
+                      const label = RAIL_SUB_TYPES.find(s => s.value === value)?.label;
+                      setValue('vendor', label || '');
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'transportation' && transportationSubCategory === 'uv_express' && (
+                <View style={{ zIndex: 90 }}>
+                  <Select
+                    label="UV Express Type"
+                    placeholder="Select type"
+                    options={UV_EXPRESS_SUB_TYPES}
+                    value={uvExpressSubType}
+                    onValueChange={(value) => {
+                      setUVExpressSubType(value as UVExpressSubType);
+                      const label = UV_EXPRESS_SUB_TYPES.find(s => s.value === value)?.label;
+                      setValue('vendor', label || '');
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
               <View style={{ zIndex: 85 }}>
                 <Select
                   label="Payment Method"
                   placeholder="Select payment method"
                   options={PAYMENT_METHODS}
                   value={paymentMethod}
-                  onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+                  onValueChange={(value) => {
+                    setPaymentMethod(value as PaymentMethod);
+                    setEWalletProvider(null);
+                  }}
                   iconColor="#2563eb"
                 />
               </View>
 
-              <View style={{ zIndex: 80 }}>
+              {paymentMethod === 'e_wallet' && (
+                <View style={{ zIndex: 80 }}>
+                  <Select
+                    label="E-Wallet Provider"
+                    placeholder="Select e-wallet provider"
+                    options={E_WALLET_PROVIDERS}
+                    value={eWalletProvider}
+                    onValueChange={(value) => setEWalletProvider(value as EWalletProvider)}
+                    iconColor="#2563eb"
+                  />
+                </View>
+              )}
+
+              <View style={{ zIndex: 75 }}>
                 <Select
                   label="Recurring"
                   placeholder="Select recurring option"
