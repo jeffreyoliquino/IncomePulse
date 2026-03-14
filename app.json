@@ -1,36 +1,60 @@
 {
   "expo": {
-    "name": "IncomePulse",
-    "slug": "IncomePulse",
+    "name": "BudgetBox",
+    "slug": "BudgetBox",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "incomepulse",
+    "scheme": "budgetbox",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2563eb"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.budgetbox.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to securely sign in to BudgetBox",
+        "NSCameraUsageDescription": "Scan receipts and bills with your camera"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2563eb"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.budgetbox.app",
+      "permissions": [
+        "CAMERA",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ]
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "single",
+      "favicon": "./assets/images/incompulse-header-logo-0226.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow BudgetBox to use Face ID for authentication"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow BudgetBox to use the camera to scan receipts"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

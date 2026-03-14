@@ -1,0 +1,15 @@
+# PowerSync Sync Rules for BudgetBox
+# Each user only receives their own data
+
+bucket_definitions:
+  user_data:
+    parameters: SELECT token_parameters.user_id as user_id
+    data:
+      - SELECT * FROM profiles WHERE id = bucket.user_id
+      - SELECT * FROM accounts WHERE user_id = bucket.user_id
+      - SELECT * FROM categories WHERE user_id = bucket.user_id OR is_system = true
+      - SELECT * FROM transactions WHERE user_id = bucket.user_id
+      - SELECT * FROM recurring_transactions WHERE user_id = bucket.user_id
+      - SELECT * FROM budgets WHERE user_id = bucket.user_id
+      - SELECT * FROM reminders WHERE user_id = bucket.user_id
+      - SELECT * FROM exchange_rates

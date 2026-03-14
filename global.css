@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fix React Native Web interactive elements on web */
+[role="button"] {
+  cursor: pointer;
+}

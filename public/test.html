@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bundle Test</title>
+  <style>
+    html, body, #root { height: 100%; margin: 0; }
+    #root { display: flex; }
+    #error-display { color: red; padding: 20px; font-family: monospace; white-space: pre-wrap; background: #fff0f0; }
+  </style>
+</head>
+<body>
+  <div id="error-display"></div>
+  <div id="root"></div>
+  <script>
+    var errorDiv = document.getElementById('error-display');
+    window.onerror = function(msg, url, line, col, error) {
+      errorDiv.innerHTML += 'ERROR: ' + msg + '<br>URL: ' + url + '<br>Line: ' + line + ', Col: ' + col + '<br>';
+      if (error && error.stack) {
+        errorDiv.innerHTML += 'Stack:<br>' + error.stack.replace(/\n/g, '<br>') + '<br><br>';
+      }
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      errorDiv.innerHTML += 'PROMISE REJECTION: ' + event.reason + '<br>';
+      if (event.reason && event.reason.stack) {
+        errorDiv.innerHTML += event.reason.stack.replace(/\n/g, '<br>') + '<br><br>';
+      }
+    });
+    errorDiv.innerHTML = 'Loading bundle...<br>';
+  </script>
+  <script src="/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.routerRoot=app" onerror="errorDiv.innerHTML += 'FAILED TO LOAD BUNDLE<br>'"></script>
+</body>
+</html>
