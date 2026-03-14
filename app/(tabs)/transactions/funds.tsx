@@ -153,13 +153,37 @@ export default function FundsScreen() {
     setFundCategory(null);
   };
 
+  const handleOpenAddModal = () => {
+    reset({ description: '', amount: '', date: new Date().toISOString().split('T')[0], notes: '' });
+    resetState();
+    setEditingTransaction(null);
+    setShowAddModal(true);
+  };
+
   const handleEdit = (transaction: any) => {
     setEditingTransaction(transaction);
+    resetState();
+
+    // Restore fund category from notes
+    const categoryMatch = (transaction.notes ?? '').match(/Category:\s*([^|\n]+)/);
+    if (categoryMatch) {
+      const categoryLabel = categoryMatch[1].trim();
+      const category = FUND_CATEGORIES.find(c => c.label === categoryLabel);
+      if (category) setFundCategory(category.value as FundCategory);
+    }
+
+    // Strip the "Category: ..." metadata line from notes before showing in the field
+    let cleanNotes = '';
+    if (transaction.notes) {
+      const filtered = transaction.notes.split('\n').filter((l: string) => !/Category:\s*/.test(l));
+      cleanNotes = filtered.join('\n').trim();
+    }
+
     reset({
       description: transaction.description ?? '',
       amount: transaction.amount.toString(),
       date: transaction.date,
-      notes: transaction.notes ?? '',
+      notes: cleanNotes,
     });
     setShowAddModal(true);
   };
@@ -375,7 +399,7 @@ export default function FundsScreen() {
 
       {/* FAB */}
       <Pressable
-        onPress={() => setShowAddModal(true)}
+        onPress={handleOpenAddModal}
         style={{
           position: 'absolute',
           bottom: 24,

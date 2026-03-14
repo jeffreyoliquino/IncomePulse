@@ -2,6 +2,7 @@ import { Card } from '@/src/components/ui';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
 import { formatCurrency } from '@/src/lib/formatters';
 import { useAppStore } from '@/src/stores/appStore';
+import { useAccountStore } from '@/src/stores/accountStore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
@@ -44,11 +45,21 @@ const TRANSACTION_MENU = [
     route: '/(tabs)/transactions/funds',
     type: 'funds',
   },
+  {
+    title: 'Accounts',
+    subtitle: 'Cash, e-wallets & bank balances',
+    icon: 'credit-card',
+    color: '#0284c7',
+    bgColor: '#e0f2fe',
+    route: '/(tabs)/transactions/accounts',
+    type: 'accounts',
+  },
 ];
 
 export default function TransactionsHubScreen() {
   const { transactions, syncLocalToCloud, refreshFromCloud, isSyncing, isLoading } = useTransactionSync();
   const { syncSavingsTargetToCloud, fetchSavingsTargetFromCloud } = useAppStore();
+  const { accounts } = useAccountStore();
 
   // Current month info
   const now = new Date();
@@ -88,8 +99,10 @@ export default function TransactionsHubScreen() {
       .filter((t) => t.type === 'savings_deposit' || t.type === 'fund_deposit')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    return { income, expense, investment, funds };
-  }, [transactions, currentMonthKey]);
+    const accountsTotal = accounts.reduce((sum, a) => sum + a.balance, 0);
+
+    return { income, expense, investment, funds, accounts: accountsTotal };
+  }, [transactions, currentMonthKey, accounts]);
 
   // Get recent transactions
   const recentTransactions = useMemo(() => {
