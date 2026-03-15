@@ -1,5 +1,7 @@
 import { Card } from '@/src/components/ui';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
+import { parseLLFNotes } from '@/src/features/financial-obligations/components/LandLotFinancingModal';
+import { parseHLNotes } from '@/src/features/financial-obligations/components/HousingLoanModal';
 import { formatCurrency } from '@/src/lib/formatters';
 import { useAppStore } from '@/src/stores/appStore';
 import { useAccountStore } from '@/src/stores/accountStore';
@@ -119,6 +121,16 @@ export default function TransactionsHubScreen() {
     return new Date(year, month - 1, day);
   }, []);
 
+  // For LLF/HL transactions, use nextPaymentDate from JSON notes if available
+  const getEffectiveDate = useCallback((t: { date: string; notes?: string | null }): string => {
+    const notes = t.notes ?? '';
+    const llf = parseLLFNotes(notes);
+    if (llf?.nextPaymentDate) return llf.nextPaymentDate;
+    const hl = parseHLNotes(notes);
+    if (hl?.nextPaymentDate) return hl.nextPaymentDate;
+    return t.date;
+  }, []);
+
   // Get upcoming obligations
   const upcomingObligations = useMemo(() => {
     const today = new Date();
@@ -139,12 +151,12 @@ export default function TransactionsHubScreen() {
         );
       })
       .filter((t) => {
-        const tDate = parseDateLocal(t.date);
+        const tDate = parseDateLocal(getEffectiveDate(t));
         return tDate >= today;
       })
-      .sort((a, b) => parseDateLocal(a.date).getTime() - parseDateLocal(b.date).getTime())
+      .sort((a, b) => parseDateLocal(getEffectiveDate(a)).getTime() - parseDateLocal(getEffectiveDate(b)).getTime())
       .slice(0, 5);
-  }, [transactions, parseDateLocal]);
+  }, [transactions, parseDateLocal, getEffectiveDate]);
 
   const isDueSoon = (dateStr: string) => {
     const today = new Date();
@@ -312,7 +324,8 @@ export default function TransactionsHubScreen() {
             </Card>
           ) : (
             upcomingObligations.map((transaction) => {
-              const dueSoon = isDueSoon(transaction.date);
+              const effectiveDate = getEffectiveDate(transaction);
+              const dueSoon = isDueSoon(effectiveDate);
               return (
                 <Card key={transaction.id} variant="elevated" className="mb-2">
                   <View className="flex-row items-center">
@@ -330,7 +343,7 @@ export default function TransactionsHubScreen() {
                         {transaction.description}
                       </Text>
                       <Text className={`text-xs ${dueSoon ? 'text-danger-600 font-bold' : 'text-surface-400'}`}>
-                        {new Date(transaction.date).toLocaleDateString('en-PH', {
+                        {parseDateLocal(effectiveDate).toLocaleDateString('en-PH', {
                           month: 'short',
                           day: 'numeric',
                         })}
