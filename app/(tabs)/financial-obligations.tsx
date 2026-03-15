@@ -1,5 +1,6 @@
 import { Button, Card, DatePicker, Input, Select } from '@/src/components/ui';
 import LandLotFinancingModal, { LLF_PREFIX } from '@/src/features/financial-obligations/components/LandLotFinancingModal';
+import HousingLoanModal, { HL_PREFIX } from '@/src/features/financial-obligations/components/HousingLoanModal';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
 import { formatCurrency, formatDate } from '@/src/lib/formatters';
@@ -100,6 +101,8 @@ export default function FinancialObligationsScreen() {
   const [recurringOption, setRecurringOption] = useState<RecurringOption>('none');
   const [showLandLotModal, setShowLandLotModal] = useState(false);
   const [editingLandLotTransaction, setEditingLandLotTransaction] = useState<any>(null);
+  const [showHousingLoanModal, setShowHousingLoanModal] = useState(false);
+  const [editingHousingLoanTransaction, setEditingHousingLoanTransaction] = useState<any>(null);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [obligationToPay, setObligationToPay] = useState<any>(null);
@@ -290,13 +293,13 @@ export default function FinancialObligationsScreen() {
     };
   };
 
-  const handleLandLotSave = async (description: string, amount: number, notes: string) => {
+  const handleLandLotSave = async (description: string, amount: number, notes: string, date: string) => {
     const transactionData = {
       type: 'expense' as const,
       amount,
       description,
       notes,
-      date: new Date().toISOString().split('T')[0],
+      date,
       is_recurring: false,
     };
     if (editingLandLotTransaction) {
@@ -318,11 +321,46 @@ export default function FinancialObligationsScreen() {
     setEditingLandLotTransaction(null);
   };
 
+  const handleHousingLoanSave = async (description: string, amount: number, notes: string, date: string) => {
+    const transactionData = {
+      type: 'expense' as const,
+      amount,
+      description,
+      notes,
+      date,
+      is_recurring: false,
+    };
+    if (editingHousingLoanTransaction) {
+      await updateTransaction(editingHousingLoanTransaction.id, transactionData);
+    } else {
+      await addTransaction({
+        user_id: user?.id ?? '',
+        account_id: '',
+        category_id: null,
+        ...transactionData,
+        currency: 'PHP',
+        recurring_id: null,
+        receipt_url: null,
+        source: 'manual' as const,
+        transfer_to_account_id: null,
+      });
+    }
+    setShowHousingLoanModal(false);
+    setEditingHousingLoanTransaction(null);
+  };
+
   const handleEdit = (transaction: any) => {
     // Land/Lot Financing has its own dedicated modal
     if (transaction.notes?.includes(LLF_PREFIX)) {
       setEditingLandLotTransaction(transaction);
       setShowLandLotModal(true);
+      return;
+    }
+
+    // Housing Loan has its own dedicated modal
+    if (transaction.notes?.includes(HL_PREFIX)) {
+      setEditingHousingLoanTransaction(transaction);
+      setShowHousingLoanModal(true);
       return;
     }
 
@@ -619,6 +657,12 @@ export default function FinancialObligationsScreen() {
                         setShowLandLotModal(true);
                         return;
                       }
+                      if (value === 'housing_loan') {
+                        setShowAddModal(false);
+                        setEditingHousingLoanTransaction(null);
+                        setShowHousingLoanModal(true);
+                        return;
+                      }
                       setLoanType(value as LoanType);
                       if (value !== 'suking_tindahan_loan') setStoreName('');
                     }}
@@ -803,6 +847,18 @@ export default function FinancialObligationsScreen() {
           </View>
         </View>
       )}
+
+      {/* Housing Loan Dedicated Modal */}
+      <HousingLoanModal
+        visible={showHousingLoanModal}
+        onClose={() => {
+          setShowHousingLoanModal(false);
+          setEditingHousingLoanTransaction(null);
+        }}
+        onSave={handleHousingLoanSave}
+        editingNotes={editingHousingLoanTransaction?.notes}
+        isEditing={!!editingHousingLoanTransaction}
+      />
 
       {/* Land/Lot Financing Dedicated Modal */}
       <LandLotFinancingModal

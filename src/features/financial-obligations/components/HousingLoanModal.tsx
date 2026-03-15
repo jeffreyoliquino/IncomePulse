@@ -29,12 +29,12 @@ interface Payment {
   principal: number;
 }
 
-export interface LandLotData {
+export interface HousingLoanData {
   // Section 1 — Loan Info
   loanName: string;
   lender: Lender | '';
   loanScheme: string;
-  propertyReference: string;
+  propertyAddress: string;
   contractReference: string;
   startDate: string;
   maturityDate: string;
@@ -56,7 +56,7 @@ export interface LandLotData {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-export const LLF_PREFIX = '__LLF__';
+export const HL_PREFIX = '__HL__';
 
 const LENDER_OPTIONS = [
   { label: 'Bank', value: 'bank', icon: 'bank' },
@@ -91,11 +91,11 @@ const LOAN_STATUS_OPTIONS = [
   { label: 'Restructured', value: 'restructured', icon: 'refresh' },
 ];
 
-const EMPTY_DATA: LandLotData = {
+const EMPTY_DATA: HousingLoanData = {
   loanName: '',
   lender: '',
   loanScheme: '',
-  propertyReference: '',
+  propertyAddress: '',
   contractReference: '',
   startDate: '',
   maturityDate: '',
@@ -115,30 +115,28 @@ const EMPTY_DATA: LandLotData = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Parse "20 years", "240 months", "20", etc. → total months */
 function parseLoanTermMonths(loanTerm: string): number {
   const lower = loanTerm.toLowerCase();
   const num = parseFloat(loanTerm);
   if (isNaN(num) || num <= 0) return 0;
   if (lower.includes('month')) return Math.round(num);
-  return Math.round(num * 12); // default: years
+  return Math.round(num * 12);
 }
 
-/** Standard reducing-balance monthly amortization formula */
 function computeMonthlyAmortization(principal: number, annualRatePct: number, termMonths: number): number {
   if (principal <= 0 || termMonths <= 0) return 0;
-  if (annualRatePct <= 0) return principal / termMonths; // interest-free
+  if (annualRatePct <= 0) return principal / termMonths;
   const r = annualRatePct / 100 / 12;
   const factor = Math.pow(1 + r, termMonths);
   return (principal * r * factor) / (factor - 1);
 }
 
-export function parseLLFNotes(notes: string | null | undefined): LandLotData | null {
+export function parseHLNotes(notes: string | null | undefined): HousingLoanData | null {
   if (!notes) return null;
-  const idx = notes.indexOf(LLF_PREFIX);
+  const idx = notes.indexOf(HL_PREFIX);
   if (idx === -1) return null;
   try {
-    return JSON.parse(notes.slice(idx + LLF_PREFIX.length).trim());
+    return JSON.parse(notes.slice(idx + HL_PREFIX.length).trim());
   } catch {
     return null;
   }
@@ -153,8 +151,8 @@ function fmt(n: number) {
 function SectionHeader({ title, icon }: { title: string; icon: string }) {
   return (
     <View className="flex-row items-center mt-6 mb-3">
-      <View className="h-8 w-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 items-center justify-center mr-3">
-        <FontAwesome name={icon as any} size={14} color="#ea580c" />
+      <View className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
+        <FontAwesome name={icon as any} size={14} color="#2563eb" />
       </View>
       <Text className="text-sm font-bold text-surface-900 dark:text-surface-100 uppercase tracking-wider">
         {title}
@@ -217,8 +215,8 @@ interface Props {
   isEditing?: boolean;
 }
 
-export default function LandLotFinancingModal({ visible, onClose, onSave, editingNotes, isEditing }: Props) {
-  const [data, setData] = useState<LandLotData>(EMPTY_DATA);
+export default function HousingLoanModal({ visible, onClose, onSave, editingNotes, isEditing }: Props) {
+  const [data, setData] = useState<HousingLoanData>(EMPTY_DATA);
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [newPaymentDate, setNewPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [newPaymentOR, setNewPaymentOR] = useState('');
@@ -227,13 +225,13 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
 
   useEffect(() => {
     if (visible) {
-      const parsed = parseLLFNotes(editingNotes);
+      const parsed = parseHLNotes(editingNotes);
       setData(parsed ?? EMPTY_DATA);
       setShowAddPayment(false);
     }
   }, [visible, editingNotes]);
 
-  const set = <K extends keyof LandLotData>(field: K, value: LandLotData[K]) =>
+  const set = <K extends keyof HousingLoanData>(field: K, value: HousingLoanData[K]) =>
     setData((prev) => ({ ...prev, [field]: value }));
 
   // ── Computed ──────────────────────────────────────────────────────────────
@@ -249,7 +247,6 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
     [data.payments]
   );
 
-  // Auto-calculate monthly amortization whenever loan details change
   useEffect(() => {
     const termMonths = parseLoanTermMonths(data.loanTerm);
     const annualRate = parseFloat(data.interestRate) || 0;
@@ -279,7 +276,6 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
     const totalPenaltyPaid = data.payments.reduce((sum, p) => sum + p.penalty, 0);
     const outstandingBalance = Math.max(0, netLoanAmount - principalPaidToDate);
 
-    // Remaining term = loan term − number of paid months
     const loanTermMonths = parseLoanTermMonths(data.loanTerm);
     const paidMonths = data.payments.length;
     const remainingMonths = loanTermMonths > 0 ? Math.max(0, loanTermMonths - paidMonths) : 0;
@@ -292,7 +288,6 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
         ? 'Fully Paid'
         : `${ry > 0 ? `${ry}y ` : ''}${rm > 0 ? `${rm}m` : ''}`.trim();
 
-    // Progress: principal paid vs net loan amount
     const percentPaid = netLoanAmount > 0
       ? Math.min(100, (principalPaidToDate / netLoanAmount) * 100)
       : 0;
@@ -330,8 +325,8 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
       Alert.alert('Loan Name Required', 'Please enter a loan name.');
       return;
     }
-    const categoryPrefix = 'Category: Loans/Utang | Type: Land/Lot Financing Loan';
-    const notes = `${categoryPrefix}\n${LLF_PREFIX}${JSON.stringify(data)}`;
+    const categoryPrefix = 'Category: Loans/Utang | Type: Housing Loan';
+    const notes = `${categoryPrefix}\n${HL_PREFIX}${JSON.stringify(data)}`;
     const amount = parseFloat(data.monthlyAmortization) || 0;
     const date = data.nextPaymentDate || new Date().toISOString().split('T')[0];
     onSave(data.loanName, amount, notes, date);
@@ -350,7 +345,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
             <Text className="text-base text-surface-500">Cancel</Text>
           </Pressable>
           <Text className="text-lg font-bold text-surface-900 dark:text-surface-100">
-            {isEditing ? 'Edit' : 'Add'} Land/Lot Financing
+            {isEditing ? 'Edit' : 'Add'} Housing Loan
           </Text>
           <View className="w-14" />
         </View>
@@ -378,7 +373,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
                 const lender = v as Lender;
                 setData((prev) => ({ ...prev, lender, loanScheme: LOAN_SCHEME_MAP[lender] || '' }));
               }}
-              iconColor="#ea580c"
+              iconColor="#2563eb"
             />
           </View>
 
@@ -389,10 +384,10 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
           />
 
           <Input
-            label="Property Reference"
-            placeholder="e.g., Lot 12, Block 3, Subdivision Name"
-            value={data.propertyReference}
-            onChangeText={(v) => set('propertyReference', v)}
+            label="Property Address"
+            placeholder="e.g., 123 Sampaguita St., Quezon City"
+            value={data.propertyAddress}
+            onChangeText={(v) => set('propertyAddress', v)}
           />
 
           <Input
@@ -440,7 +435,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
               options={LOAN_STATUS_OPTIONS}
               value={data.loanStatus || null}
               onValueChange={(v) => set('loanStatus', v as LoanStatus)}
-              iconColor="#ea580c"
+              iconColor="#2563eb"
             />
           </View>
 
@@ -487,7 +482,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
               options={INTEREST_TYPE_OPTIONS}
               value={data.interestType || null}
               onValueChange={(v) => set('interestType', v as InterestType)}
-              iconColor="#ea580c"
+              iconColor="#2563eb"
             />
           </View>
 
@@ -531,7 +526,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
               options={PAYMENT_MODE_OPTIONS}
               value={data.modeOfPayment || null}
               onValueChange={(v) => set('modeOfPayment', v as ModeOfPayment)}
-              iconColor="#ea580c"
+              iconColor="#2563eb"
             />
           </View>
 
@@ -590,10 +585,10 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
           {!showAddPayment && (
             <Pressable
               onPress={() => setShowAddPayment(true)}
-              className="flex-row items-center justify-center border border-dashed border-orange-400 rounded-xl py-3 mb-4 mt-2"
+              className="flex-row items-center justify-center border border-dashed border-blue-400 rounded-xl py-3 mb-4 mt-2"
             >
-              <FontAwesome name="plus" size={14} color="#ea580c" />
-              <Text className="ml-2 text-sm font-medium text-orange-600">Add Payment</Text>
+              <FontAwesome name="plus" size={14} color="#2563eb" />
+              <Text className="ml-2 text-sm font-medium text-blue-600">Add Payment</Text>
             </Pressable>
           )}
 
@@ -677,7 +672,7 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
                     Cancel
                   </Text>
                 </Pressable>
-                <Pressable onPress={handleAddPayment} className="flex-1 py-3 rounded-xl bg-orange-500">
+                <Pressable onPress={handleAddPayment} className="flex-1 py-3 rounded-xl bg-blue-500">
                   <Text className="text-center font-medium text-white">Add</Text>
                 </Pressable>
               </View>
@@ -694,13 +689,13 @@ export default function LandLotFinancingModal({ visible, onClose, onSave, editin
             <View className="mb-4">
               <View className="flex-row justify-between mb-1.5">
                 <Text className="text-xs text-surface-500 dark:text-surface-400">Loan Progress</Text>
-                <Text className="text-xs font-bold text-orange-600">
+                <Text className="text-xs font-bold text-blue-600">
                   {insights.percentPaid.toFixed(1)}% Paid
                 </Text>
               </View>
               <View className="h-3.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
                 <View
-                  className="h-3.5 bg-orange-500 rounded-full"
+                  className="h-3.5 bg-blue-500 rounded-full"
                   style={{ width: `${insights.percentPaid}%` }}
                 />
               </View>
