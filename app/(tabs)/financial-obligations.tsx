@@ -1,4 +1,5 @@
 import { Button, Card, DatePicker, Input, Select } from '@/src/components/ui';
+import LandLotFinancingModal, { LLF_PREFIX } from '@/src/features/financial-obligations/components/LandLotFinancingModal';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
 import { formatCurrency, formatDate } from '@/src/lib/formatters';
@@ -24,7 +25,7 @@ type InsuranceType = 'life_insurance' | 'health_insurance' | 'car_insurance' | '
 type TaxType = 'real_estate_tax' | 'property_tax' | 'income_tax';
 
 const OBLIGATION_CATEGORIES: { label: string; value: ObligationCategory; icon: string }[] = [
-  { label: 'Loans', value: 'loans', icon: 'bank' },
+  { label: 'Loans/Utang', value: 'loans', icon: 'bank' },
   { label: 'Credit Cards', value: 'credit_cards', icon: 'credit-card' },
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
@@ -41,7 +42,7 @@ const LOAN_TYPES: { label: string; value: LoanType; icon: string }[] = [
   { label: 'SSS Loan', value: 'sss_loan', icon: 'id-card' },
   { label: 'Pag-ibig Loan', value: 'pagibig_loan', icon: 'heart' },
   { label: 'Friend/Family Loan', value: 'friend_family_loan', icon: 'users' },
-  { label: 'Suking Tindahan Loan', value: 'suking_tindahan_loan', icon: 'shopping-basket' },
+  { label: 'Utang sa Tindahan', value: 'suking_tindahan_loan', icon: 'shopping-basket' },
 ];
 
 const INSURANCE_TYPES: { label: string; value: InsuranceType; icon: string }[] = [
@@ -95,7 +96,10 @@ export default function FinancialObligationsScreen() {
   const [loanType, setLoanType] = useState<LoanType | null>(null);
   const [insuranceType, setInsuranceType] = useState<InsuranceType | null>(null);
   const [taxType, setTaxType] = useState<TaxType | null>(null);
+  const [storeName, setStoreName] = useState('');
   const [recurringOption, setRecurringOption] = useState<RecurringOption>('none');
+  const [showLandLotModal, setShowLandLotModal] = useState(false);
+  const [editingLandLotTransaction, setEditingLandLotTransaction] = useState<any>(null);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [obligationToPay, setObligationToPay] = useState<any>(null);
@@ -223,6 +227,7 @@ export default function FinancialObligationsScreen() {
     setLoanType(null);
     setInsuranceType(null);
     setTaxType(null);
+    setStoreName('');
     setRecurringOption('none');
   };
 
@@ -265,6 +270,8 @@ export default function FinancialObligationsScreen() {
             if (recurringMatch) recurringOption = recurringMatch.value;
           }
         }
+      } else if (line.startsWith('Store: ')) {
+        setStoreName(line.replace('Store: ', '').trim());
       } else if (line.startsWith('Vendor: ')) {
         vendor = line.replace('Vendor: ', '').trim();
       } else if (!line.includes('Status:') && line.trim() !== '') {
@@ -283,9 +290,45 @@ export default function FinancialObligationsScreen() {
     };
   };
 
+  const handleLandLotSave = async (description: string, amount: number, notes: string) => {
+    const transactionData = {
+      type: 'expense' as const,
+      amount,
+      description,
+      notes,
+      date: new Date().toISOString().split('T')[0],
+      is_recurring: false,
+    };
+    if (editingLandLotTransaction) {
+      await updateTransaction(editingLandLotTransaction.id, transactionData);
+    } else {
+      await addTransaction({
+        user_id: user?.id ?? '',
+        account_id: '',
+        category_id: null,
+        ...transactionData,
+        currency: 'PHP',
+        recurring_id: null,
+        receipt_url: null,
+        source: 'manual' as const,
+        transfer_to_account_id: null,
+      });
+    }
+    setShowLandLotModal(false);
+    setEditingLandLotTransaction(null);
+  };
+
   const handleEdit = (transaction: any) => {
+    // Land/Lot Financing has its own dedicated modal
+    if (transaction.notes?.includes(LLF_PREFIX)) {
+      setEditingLandLotTransaction(transaction);
+      setShowLandLotModal(true);
+      return;
+    }
+
     setEditingTransaction(transaction);
 
+    setStoreName('');
     const parsed = parseNotesForEdit(transaction.notes);
 
     // Set state variables
@@ -335,6 +378,7 @@ export default function FinancialObligationsScreen() {
     const categoryInfo = getCategoryInfo();
     let notesContent: string[] = [];
     if (categoryInfo) notesContent.push(categoryInfo);
+    if (loanType === 'suking_tindahan_loan' && storeName.trim()) notesContent.push(`Store: ${storeName.trim()}`);
     if (data.vendor) notesContent.push(`Vendor: ${data.vendor}`);
     if (data.notes) notesContent.push(data.notes);
 
@@ -568,10 +612,28 @@ export default function FinancialObligationsScreen() {
                     placeholder="Select loan type"
                     options={LOAN_TYPES}
                     value={loanType}
-                    onValueChange={(value) => setLoanType(value as LoanType)}
+                    onValueChange={(value) => {
+                      if (value === 'land_lot_financing') {
+                        setShowAddModal(false);
+                        setEditingLandLotTransaction(null);
+                        setShowLandLotModal(true);
+                        return;
+                      }
+                      setLoanType(value as LoanType);
+                      if (value !== 'suking_tindahan_loan') setStoreName('');
+                    }}
                     iconColor="#ea580c"
                   />
                 </View>
+              )}
+
+              {loanType === 'suking_tindahan_loan' && (
+                <Input
+                  label="Store Name"
+                  placeholder="e.g., Aling Nena's Store"
+                  value={storeName}
+                  onChangeText={setStoreName}
+                />
               )}
 
               {category === 'insurance' && (
@@ -741,6 +803,18 @@ export default function FinancialObligationsScreen() {
           </View>
         </View>
       )}
+
+      {/* Land/Lot Financing Dedicated Modal */}
+      <LandLotFinancingModal
+        visible={showLandLotModal}
+        onClose={() => {
+          setShowLandLotModal(false);
+          setEditingLandLotTransaction(null);
+        }}
+        onSave={handleLandLotSave}
+        editingNotes={editingLandLotTransaction?.notes}
+        isEditing={!!editingLandLotTransaction}
+      />
 
       {/* Mark as Paid Modal */}
       <Modal
