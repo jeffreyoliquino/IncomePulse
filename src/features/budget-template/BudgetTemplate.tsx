@@ -1,5 +1,7 @@
 import { Card, Input, Select } from '@/src/components/ui';
+import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { formatCurrency } from '@/src/lib/formatters';
+import { isSupabaseConfigured, supabase } from '@/src/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -8,6 +10,97 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type TemplateType = 'employee' | 'ofw' | 'student';
+
+// ─── Cross-platform Storage ───────────────────────────────────────────────────
+// Saves to Supabase (syncs web ↔ mobile) when user is logged in.
+// Falls back to AsyncStorage when offline or not authenticated.
+// userId must come from useAuth() so the effect re-runs once the session loads.
+
+async function loadTemplateData(
+  type: TemplateType,
+  localKey: string,
+  userId: string | null
+): Promise<{ data: Record<string, any> | null; savedAt: string | null }> {
+  if (userId && isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase
+        .from('budget_templates')
+        .select('data, saved_at')
+        .eq('user_id', userId)
+        .eq('template_type', type)
+        .maybeSingle();
+      if (error) {
+        console.error('[BudgetTemplate] load error:', error.message);
+      } else if (data) {
+        // Update local cache with latest from server
+        await AsyncStorage.setItem(localKey, JSON.stringify(data.data));
+        return { data: data.data, savedAt: data.saved_at };
+      }
+    } catch (e) {
+      console.error('[BudgetTemplate] load exception:', e);
+    }
+  }
+
+  // Fallback: local cache (offline / not logged in)
+  const raw = await AsyncStorage.getItem(localKey);
+  if (!raw) return { data: null, savedAt: null };
+  const parsed = JSON.parse(raw);
+  return { data: parsed, savedAt: parsed.savedAt ?? null };
+}
+
+async function saveTemplateData(
+  type: TemplateType,
+  localKey: string,
+  payload: Record<string, any>,
+  userId: string | null
+): Promise<void> {
+  const now = new Date().toISOString();
+  const withTimestamp = { ...payload, savedAt: now };
+
+  // Always write to local cache first (instant, works offline)
+  await AsyncStorage.setItem(localKey, JSON.stringify(withTimestamp));
+
+  if (userId && isSupabaseConfigured) {
+    try {
+      const { error } = await supabase.from('budget_templates').upsert(
+        {
+          user_id: userId,
+          template_type: type,
+          data: withTimestamp,
+          saved_at: now,
+        },
+        { onConflict: 'user_id,template_type' }
+      );
+      if (error) {
+        console.error('[BudgetTemplate] save error:', error.message);
+      }
+    } catch (e) {
+      console.error('[BudgetTemplate] save exception:', e);
+    }
+  }
+}
+
+async function hasTemplateData(
+  type: TemplateType,
+  localKey: string,
+  userId: string | null
+): Promise<boolean> {
+  if (userId && isSupabaseConfigured) {
+    try {
+      const { data } = await supabase
+        .from('budget_templates')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('template_type', type)
+        .maybeSingle();
+      if (data) return true;
+    } catch {
+      // fall through to local check
+    }
+  }
+  return !!(await AsyncStorage.getItem(localKey));
+}
+
 type FieldDef = { key: string; label: string };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -344,6 +437,7 @@ const EMP_IPON: FieldDef[] = [
 const STORAGE_KEY_EMPLOYEE = 'budget_template_employee';
 
 function EmployeeTemplate() {
+  const { user } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -360,32 +454,29 @@ function EmployeeTemplate() {
   );
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY_EMPLOYEE).then((val) => {
-      if (!val) return;
-      const saved = JSON.parse(val);
-      setCycle(saved.cycle ?? '');
-      income.setAll(saved.income ?? {});
-      fixed.setAll(saved.fixed ?? {});
-      variable.setAll(saved.variable ?? {});
-      utang.setAll(saved.utang ?? {});
-      ipon.setAll(saved.ipon ?? {});
-      setSavedAt(saved.savedAt ?? null);
+    loadTemplateData('employee', STORAGE_KEY_EMPLOYEE, user?.id ?? null).then(({ data, savedAt: at }) => {
+      if (!data) return;
+      setCycle(data.cycle ?? '');
+      income.setAll(data.income ?? {});
+      fixed.setAll(data.fixed ?? {});
+      variable.setAll(data.variable ?? {});
+      utang.setAll(data.utang ?? {});
+      ipon.setAll(data.ipon ?? {});
+      setSavedAt(at);
       setMode('view');
     });
-  }, []);
+  }, [user?.id]);
 
   const handleSave = async () => {
-    const now = new Date().toISOString();
-    await AsyncStorage.setItem(STORAGE_KEY_EMPLOYEE, JSON.stringify({
+    await saveTemplateData('employee', STORAGE_KEY_EMPLOYEE, {
       cycle,
       income: income.fields,
       fixed: fixed.fields,
       variable: variable.fields,
       utang: utang.fields,
       ipon: ipon.fields,
-      savedAt: now,
-    }));
-    setSavedAt(now);
+    }, user?.id ?? null);
+    setSavedAt(new Date().toISOString());
     setMode('view');
   };
 
@@ -518,6 +609,7 @@ const OFW_SINKING: FieldDef[] = [
 const STORAGE_KEY_OFW = 'budget_template_ofw';
 
 function OFWTemplate() {
+  const { user } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -535,24 +627,22 @@ function OFWTemplate() {
   );
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY_OFW).then((val) => {
-      if (!val) return;
-      const saved = JSON.parse(val);
-      setCycle(saved.cycle ?? '');
-      income.setAll(saved.income ?? {});
-      household.setAll(saved.household ?? {});
-      obligations.setAll(saved.obligations ?? {});
-      support.setAll(saved.support ?? {});
-      savings.setAll(saved.savings ?? {});
-      sinking.setAll(saved.sinking ?? {});
-      setSavedAt(saved.savedAt ?? null);
+    loadTemplateData('ofw', STORAGE_KEY_OFW, user?.id ?? null).then(({ data, savedAt: at }) => {
+      if (!data) return;
+      setCycle(data.cycle ?? '');
+      income.setAll(data.income ?? {});
+      household.setAll(data.household ?? {});
+      obligations.setAll(data.obligations ?? {});
+      support.setAll(data.support ?? {});
+      savings.setAll(data.savings ?? {});
+      sinking.setAll(data.sinking ?? {});
+      setSavedAt(at);
       setMode('view');
     });
-  }, []);
+  }, [user?.id]);
 
   const handleSave = async () => {
-    const now = new Date().toISOString();
-    await AsyncStorage.setItem(STORAGE_KEY_OFW, JSON.stringify({
+    await saveTemplateData('ofw', STORAGE_KEY_OFW, {
       cycle,
       income: income.fields,
       household: household.fields,
@@ -560,9 +650,8 @@ function OFWTemplate() {
       support: support.fields,
       savings: savings.fields,
       sinking: sinking.fields,
-      savedAt: now,
-    }));
-    setSavedAt(now);
+    }, user?.id ?? null);
+    setSavedAt(new Date().toISOString());
     setMode('view');
   };
 
@@ -671,6 +760,7 @@ const STU_GOALS: FieldDef[] = [
 const STORAGE_KEY_STUDENT = 'budget_template_student';
 
 function StudentTemplate() {
+  const { user } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -687,32 +777,29 @@ function StudentTemplate() {
   );
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY_STUDENT).then((val) => {
-      if (!val) return;
-      const saved = JSON.parse(val);
-      setCycle(saved.cycle ?? '');
-      income.setAll(saved.income ?? {});
-      school.setAll(saved.school ?? {});
-      personal.setAll(saved.personal ?? {});
-      dorm.setAll(saved.dorm ?? {});
-      goals.setAll(saved.goals ?? {});
-      setSavedAt(saved.savedAt ?? null);
+    loadTemplateData('student', STORAGE_KEY_STUDENT, user?.id ?? null).then(({ data, savedAt: at }) => {
+      if (!data) return;
+      setCycle(data.cycle ?? '');
+      income.setAll(data.income ?? {});
+      school.setAll(data.school ?? {});
+      personal.setAll(data.personal ?? {});
+      dorm.setAll(data.dorm ?? {});
+      goals.setAll(data.goals ?? {});
+      setSavedAt(at);
       setMode('view');
     });
-  }, []);
+  }, [user?.id]);
 
   const handleSave = async () => {
-    const now = new Date().toISOString();
-    await AsyncStorage.setItem(STORAGE_KEY_STUDENT, JSON.stringify({
+    await saveTemplateData('student', STORAGE_KEY_STUDENT, {
       cycle,
       income: income.fields,
       school: school.fields,
       personal: personal.fields,
       dorm: dorm.fields,
       goals: goals.fields,
-      savedAt: now,
-    }));
-    setSavedAt(now);
+    }, user?.id ?? null);
+    setSavedAt(new Date().toISOString());
     setMode('view');
   };
 
@@ -793,21 +880,26 @@ const ALL_STORAGE_KEYS: Record<TemplateType, string> = {
 };
 
 export function BudgetTemplate() {
+  const { user } = useAuth();
   const [selected, setSelected] = useState<TemplateType | null>(null);
   const [savedTemplates, setSavedTemplates] = useState<Set<TemplateType>>(new Set());
 
-  // Check which templates have saved data for the selector badges
+  // Check which templates have saved data for the selector badges.
+  // Depends on user?.id so it re-checks once the session is restored.
   useEffect(() => {
     const check = async () => {
       const results = await Promise.all(
         (Object.entries(ALL_STORAGE_KEYS) as [TemplateType, string][]).map(
-          async ([type, key]) => ({ type, has: !!(await AsyncStorage.getItem(key)) })
+          async ([type, key]) => ({
+            type,
+            has: await hasTemplateData(type as TemplateType, key, user?.id ?? null),
+          })
         )
       );
       setSavedTemplates(new Set(results.filter((r) => r.has).map((r) => r.type)));
     };
     check();
-  }, [selected]); // re-check when returning to selector
+  }, [selected, user?.id]); // re-check when returning to selector or session loads
 
   if (!selected) {
     return <TemplateSelector onSelect={setSelected} savedTemplates={savedTemplates} />;

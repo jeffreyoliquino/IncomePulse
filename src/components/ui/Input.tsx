@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { Platform, View, Text, TextInput, TextInputProps } from 'react-native';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -30,6 +30,10 @@ export const Input = forwardRef<TextInput, InputProps>(
             className="flex-1 text-base text-surface-900 dark:text-surface-100"
             placeholderTextColor="#94a3b8"
             {...props}
+            style={[
+              Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : undefined,
+              props.style,
+            ]}
           />
           {rightIcon && <View className="ml-2">{rightIcon}</View>}
         </View>
