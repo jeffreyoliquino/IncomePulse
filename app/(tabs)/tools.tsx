@@ -10,8 +10,9 @@ import { ReceiptScanner } from '@/src/features/receipt-scanner/ReceiptScanner';
 import { SmsDetector } from '@/src/features/sms-detector/SmsDetector';
 import { AICoach } from '@/src/features/ai-coach/AICoach';
 import { PriceMonitor } from '@/src/features/price-monitor/PriceMonitor';
+import { BudgetTemplate } from '@/src/features/budget-template/BudgetTemplate';
 
-type ActiveTool = 'menu' | 'salary' | 'loan' | 'currency' | 'cashflow' | 'receipt' | 'sms' | 'coach' | 'price';
+type ActiveTool = 'menu' | 'salary' | 'loan' | 'currency' | 'cashflow' | 'receipt' | 'sms' | 'coach' | 'price' | 'budget-template';
 
 const TOOLS = [
   {
@@ -78,6 +79,14 @@ const TOOLS = [
     color: '#0d9488',
     bgColor: '#ccfbf1',
   },
+  {
+    id: 'budget-template' as const,
+    title: 'Budget Templates',
+    description: 'Employee, OFW, and Student budget planner',
+    icon: 'file-text-o' as const,
+    color: '#ea580c',
+    bgColor: '#ffedd5',
+  },
 ];
 
 const TOOL_LABELS: Record<string, string> = {
@@ -89,6 +98,7 @@ const TOOL_LABELS: Record<string, string> = {
   sms: 'SMS Detector',
   coach: 'AI Coach',
   price: 'Price Monitor',
+  'budget-template': 'Budget Templates',
 };
 
 export default function ToolsScreen() {
@@ -104,6 +114,7 @@ export default function ToolsScreen() {
       sms: SmsDetector,
       coach: AICoach,
       price: PriceMonitor,
+      'budget-template': BudgetTemplate,
     }[activeTool];
 
     return (
