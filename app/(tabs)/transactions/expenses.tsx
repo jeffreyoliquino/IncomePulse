@@ -21,12 +21,46 @@ import { z } from 'zod';
 
 // Expense Categories
 type ExpenseCategory =
-  | 'food_groceries' | 'pet_supplies' | 'dining' | 'shopping' | 'transportation'
+  | 'food_groceries' | 'pet_supplies' | 'pet_care' | 'dining' | 'shopping' | 'transportation'
   | 'gas' | 'toll_gate' | 'travel' | 'vehicle_maintenance' | 'house_maintenance'
   | 'gardening' | 'utilities' | 'healthcare' | 'entertainment' | 'cellphone_load'
   | 'online_shopping' | 'insurance' | 'emergency_fund' | 'vacation' | 'rent'
   | 'taxes' | 'tuition_fee' | 'school_service' | 'school_supplies' | 'allowance'
-  | 'remittance' | 'personal_care_leisure' | 'license_registration_certification';
+  | 'school_project' | 'tuition_and_school_expenses'
+  | 'uniforms_clothing' | 'books_learning_materials' | 'school_transportation'
+  | 'meals_allowance' | 'technology_gadgets' | 'field_trip'
+  | 'extracurricular_activities' | 'health_miscellaneous' | 'graduation'
+  | 'pet_food' | 'pet_treats' | 'pet_vitamins' | 'pet_checkup' | 'pet_vaccines'
+  | 'pet_deworming' | 'pet_medications' | 'pet_neuter_spay' | 'pet_grooming' | 'pet_accessories'
+  | 'pet_acc_collar' | 'pet_acc_leash' | 'pet_acc_harness' | 'pet_acc_food_bowl'
+  | 'pet_acc_water_bowl' | 'pet_acc_bed' | 'pet_acc_cage' | 'pet_acc_carrier'
+  | 'pet_acc_litter_box' | 'pet_acc_litter_sand' | 'pet_acc_aquarium' | 'pet_acc_toys'
+  | 'remittance' | 'personal_care_leisure' | 'personal_care' | 'leisure' | 'license_registration_certification'
+  | 'pc_acne_treatments' | 'pc_chemical_peels' | 'pc_dermatologist' | 'pc_dewarts'
+  | 'pc_face_masks' | 'pc_hair_coloring' | 'pc_hair_cut' | 'pc_hair_rebonding'
+  | 'pc_hair_treatment' | 'pc_hair_wash' | 'pc_laser_treatments' | 'pc_manicure_pedicure'
+  | 'pc_massage_spa' | 'pc_microdermabrasion' | 'pc_nail_art' | 'pc_reflexology'
+  | 'pc_regular_facials' | 'pc_sauna' | 'pc_whitening'
+  | 'fitness_gym' | 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear';
+type FitnessGymSubCategory = 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear';
+type PersonalCareSubCategory =
+  | 'pc_acne_treatments' | 'pc_chemical_peels' | 'pc_dermatologist' | 'pc_dewarts'
+  | 'pc_face_masks' | 'pc_hair_coloring' | 'pc_hair_cut' | 'pc_hair_rebonding'
+  | 'pc_hair_treatment' | 'pc_hair_wash' | 'pc_laser_treatments' | 'pc_manicure_pedicure'
+  | 'pc_massage_spa' | 'pc_microdermabrasion' | 'pc_nail_art' | 'pc_reflexology'
+  | 'pc_regular_facials' | 'pc_sauna' | 'pc_whitening';
+type PetCareSubCategory =
+  | 'pet_food' | 'pet_treats' | 'pet_vitamins' | 'pet_checkup' | 'pet_vaccines'
+  | 'pet_deworming' | 'pet_medications' | 'pet_neuter_spay' | 'pet_grooming' | 'pet_accessories';
+type PetAccessorySubCategory =
+  | 'pet_acc_collar' | 'pet_acc_leash' | 'pet_acc_harness' | 'pet_acc_food_bowl'
+  | 'pet_acc_water_bowl' | 'pet_acc_bed' | 'pet_acc_cage' | 'pet_acc_carrier'
+  | 'pet_acc_litter_box' | 'pet_acc_litter_sand' | 'pet_acc_aquarium' | 'pet_acc_toys';
+type SchoolExpenseSubCategory =
+  | 'tuition_fee' | 'allowance' | 'school_project' | 'school_supplies' | 'school_service'
+  | 'uniforms_clothing' | 'books_learning_materials' | 'school_transportation'
+  | 'meals_allowance' | 'technology_gadgets' | 'field_trip'
+  | 'extracurricular_activities' | 'health_miscellaneous' | 'graduation';
 
 type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer' | 'e_wallet';
 type RecurringOption = 'none' | 'weekly' | 'monthly' | 'yearly';
@@ -54,34 +88,33 @@ type EWalletProvider =
   | 'truemoney' | 'dragonpay' | 'pdax' | 'others';
 
 const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string }[] = [
-  { label: 'Food & Groceries', value: 'food_groceries', icon: 'shopping-cart' },
-  { label: 'Rent', value: 'rent', icon: 'home' },
-  { label: 'Utilities', value: 'utilities', icon: 'bolt' },
-  { label: 'Healthcare', value: 'healthcare', icon: 'medkit' },
-  { label: 'Insurance', value: 'insurance', icon: 'shield' },
-  { label: 'Emergency Fund', value: 'emergency_fund', icon: 'exclamation-triangle' },
-  { label: 'Transportation', value: 'transportation', icon: 'bus' },
-  { label: 'Gas/Fuel', value: 'gas', icon: 'tint' },
-  { label: 'Toll Gate', value: 'toll_gate', icon: 'road' },
-  { label: 'Travel', value: 'travel', icon: 'plane' },
-  { label: 'Vehicle Maintenance', value: 'vehicle_maintenance', icon: 'car' },
-  { label: 'House Maintenance', value: 'house_maintenance', icon: 'wrench' },
-  { label: 'Online Shopping', value: 'online_shopping', icon: 'globe' },
-  { label: 'Vacation', value: 'vacation', icon: 'umbrella' },
-  { label: 'Dining', value: 'dining', icon: 'cutlery' },
-  { label: 'Shopping', value: 'shopping', icon: 'shopping-bag' },
-  { label: 'Entertainment', value: 'entertainment', icon: 'film' },
   { label: 'CellPhone Load', value: 'cellphone_load', icon: 'mobile' },
-  { label: 'Pet Supplies', value: 'pet_supplies', icon: 'paw' },
+  { label: 'Dining', value: 'dining', icon: 'cutlery' },
+  { label: 'Emergency Fund', value: 'emergency_fund', icon: 'exclamation-triangle' },
+  { label: 'Entertainment', value: 'entertainment', icon: 'film' },
+  { label: 'Fitness / Gym', value: 'fitness_gym', icon: 'heartbeat' },
+  { label: 'Food & Groceries', value: 'food_groceries', icon: 'shopping-cart' },
   { label: 'Gardening Needs', value: 'gardening', icon: 'leaf' },
-  { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
-  { label: 'Tuition Fee', value: 'tuition_fee', icon: 'graduation-cap' },
-  { label: 'School Service', value: 'school_service', icon: 'bus' },
-  { label: 'School Supplies', value: 'school_supplies', icon: 'pencil' },
-  { label: 'Allowance', value: 'allowance', icon: 'money' },
-  { label: 'Remittance', value: 'remittance', icon: 'exchange' },
-  { label: 'Personal Care and Leisure', value: 'personal_care_leisure', icon: 'smile-o' },
+  { label: 'Gas/Fuel', value: 'gas', icon: 'tint' },
+  { label: 'Healthcare', value: 'healthcare', icon: 'medkit' },
+  { label: 'House Maintenance', value: 'house_maintenance', icon: 'wrench' },
+  { label: 'Insurance', value: 'insurance', icon: 'shield' },
+  { label: 'Leisure', value: 'leisure', icon: 'gamepad' },
   { label: 'License, Registration and Certification', value: 'license_registration_certification', icon: 'id-card-o' },
+  { label: 'Online Shopping', value: 'online_shopping', icon: 'globe' },
+  { label: 'Personal Care', value: 'personal_care', icon: 'smile-o' },
+  { label: 'Pet Care', value: 'pet_care', icon: 'paw' },
+  { label: 'Remittance', value: 'remittance', icon: 'exchange' },
+  { label: 'Rent', value: 'rent', icon: 'home' },
+  { label: 'Shopping', value: 'shopping', icon: 'shopping-bag' },
+  { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
+  { label: 'Toll Gate', value: 'toll_gate', icon: 'road' },
+  { label: 'Transportation', value: 'transportation', icon: 'bus' },
+  { label: 'Travel', value: 'travel', icon: 'plane' },
+  { label: 'Tuition and School Expenses', value: 'tuition_and_school_expenses', icon: 'graduation-cap' },
+  { label: 'Utilities', value: 'utilities', icon: 'bolt' },
+  { label: 'Vacation', value: 'vacation', icon: 'umbrella' },
+  { label: 'Vehicle Maintenance', value: 'vehicle_maintenance', icon: 'car' },
 ];
 
 const PAYMENT_METHODS: { label: string; value: PaymentMethod; icon: string }[] = [
@@ -127,6 +160,80 @@ const RENT_SUB_CATEGORIES: { label: string; value: RentSubCategory; icon: string
   { label: 'Commercial Space', value: 'commercial_space', icon: 'building' },
   { label: 'Car', value: 'car', icon: 'car' },
   { label: 'Parking Space', value: 'parking_space', icon: 'product-hunt' },
+];
+
+const SCHOOL_EXPENSE_SUB_CATEGORIES: { label: string; value: SchoolExpenseSubCategory; icon: string }[] = [
+  { label: 'Allowance', value: 'allowance', icon: 'money' },
+  { label: 'Books & Learning Materials', value: 'books_learning_materials', icon: 'book' },
+  { label: 'Extracurricular Activities', value: 'extracurricular_activities', icon: 'trophy' },
+  { label: 'Field Trip', value: 'field_trip', icon: 'map-marker' },
+  { label: 'Graduation', value: 'graduation', icon: 'graduation-cap' },
+  { label: 'Health & Miscellaneous', value: 'health_miscellaneous', icon: 'plus-square' },
+  { label: 'Meals & Allowance', value: 'meals_allowance', icon: 'cutlery' },
+  { label: 'School Project', value: 'school_project', icon: 'pencil' },
+  { label: 'School Service', value: 'school_service', icon: 'bus' },
+  { label: 'School Supplies', value: 'school_supplies', icon: 'pencil' },
+  { label: 'Technology & Gadgets', value: 'technology_gadgets', icon: 'laptop' },
+  { label: 'Transportation', value: 'school_transportation', icon: 'bus' },
+  { label: 'Tuition Fee', value: 'tuition_fee', icon: 'graduation-cap' },
+  { label: 'Uniforms & Clothing', value: 'uniforms_clothing', icon: 'shopping-bag' },
+];
+
+const FITNESS_GYM_SUB_CATEGORIES: { label: string; value: FitnessGymSubCategory; icon: string }[] = [
+  { label: 'Activewear / Gym Shoes', value: 'fg_activewear', icon: 'shopping-bag' },
+  { label: 'Equipment (Weights, Mats, Resistance Bands)', value: 'fg_equipment', icon: 'trophy' },
+  { label: 'Gym Fees', value: 'fg_gym_fees', icon: 'credit-card' },
+  { label: 'Sports Clubs', value: 'fg_sports_clubs', icon: 'group' },
+];
+
+const PERSONAL_CARE_SUB_CATEGORIES: { label: string; value: PersonalCareSubCategory; icon: string }[] = [
+  { label: 'Acne Treatments / Pimple Extraction', value: 'pc_acne_treatments', icon: 'medkit' },
+  { label: 'Chemical Peels', value: 'pc_chemical_peels', icon: 'flask' },
+  { label: 'Dermatologist Visits & Consultations', value: 'pc_dermatologist', icon: 'stethoscope' },
+  { label: 'Dewarts', value: 'pc_dewarts', icon: 'plus-square' },
+  { label: 'Face Masks at Spas', value: 'pc_face_masks', icon: 'smile-o' },
+  { label: 'Hair Coloring / Highlights / Bleaching', value: 'pc_hair_coloring', icon: 'paint-brush' },
+  { label: 'Hair Cut', value: 'pc_hair_cut', icon: 'scissors' },
+  { label: 'Hair Rebonding / Keratin / Straightening / Perm', value: 'pc_hair_rebonding', icon: 'magic' },
+  { label: 'Hair Treatment (Scalp & Deep Conditioning)', value: 'pc_hair_treatment', icon: 'leaf' },
+  { label: 'Hair Wash / Blow Dry / Styling', value: 'pc_hair_wash', icon: 'tint' },
+  { label: 'Laser Treatments', value: 'pc_laser_treatments', icon: 'flash' },
+  { label: 'Manicure / Pedicure', value: 'pc_manicure_pedicure', icon: 'hand-o-up' },
+  { label: 'Massage / Spa Services', value: 'pc_massage_spa', icon: 'heart' },
+  { label: 'Microdermabrasion', value: 'pc_microdermabrasion', icon: 'circle-o' },
+  { label: 'Nail Polish / Gel / Acrylic / Nail Art', value: 'pc_nail_art', icon: 'star' },
+  { label: 'Reflexology / Foot Spa', value: 'pc_reflexology', icon: 'wheelchair' },
+  { label: 'Regular Facials', value: 'pc_regular_facials', icon: 'smile-o' },
+  { label: 'Sauna / Steam Bath', value: 'pc_sauna', icon: 'fire' },
+  { label: 'Whitening or Brightening Treatments', value: 'pc_whitening', icon: 'sun-o' },
+];
+
+const PET_CARE_SUB_CATEGORIES: { label: string; value: PetCareSubCategory; icon: string }[] = [
+  { label: 'Accessories', value: 'pet_accessories', icon: 'shopping-bag' },
+  { label: 'Deworming', value: 'pet_deworming', icon: 'plus-square-o' },
+  { label: 'Food', value: 'pet_food', icon: 'cutlery' },
+  { label: 'Grooming Services', value: 'pet_grooming', icon: 'cut' },
+  { label: 'Medications', value: 'pet_medications', icon: 'medkit' },
+  { label: 'Neuter/Spay', value: 'pet_neuter_spay', icon: 'scissors' },
+  { label: 'Routine Checkups', value: 'pet_checkup', icon: 'stethoscope' },
+  { label: 'Treats', value: 'pet_treats', icon: 'star' },
+  { label: 'Vaccines', value: 'pet_vaccines', icon: 'plus-square' },
+  { label: 'Vitamins & Supplements', value: 'pet_vitamins', icon: 'medkit' },
+];
+
+const PET_ACCESSORY_SUB_CATEGORIES: { label: string; value: PetAccessorySubCategory; icon: string }[] = [
+  { label: 'Collar', value: 'pet_acc_collar', icon: 'circle-o' },
+  { label: 'Leash', value: 'pet_acc_leash', icon: 'link' },
+  { label: 'Harness', value: 'pet_acc_harness', icon: 'link' },
+  { label: 'Food Bowl', value: 'pet_acc_food_bowl', icon: 'circle' },
+  { label: 'Water Bowl', value: 'pet_acc_water_bowl', icon: 'tint' },
+  { label: 'Bed', value: 'pet_acc_bed', icon: 'bed' },
+  { label: 'Cage', value: 'pet_acc_cage', icon: 'lock' },
+  { label: 'Carrier', value: 'pet_acc_carrier', icon: 'suitcase' },
+  { label: 'Litter Box', value: 'pet_acc_litter_box', icon: 'inbox' },
+  { label: 'Litter Sand', value: 'pet_acc_litter_sand', icon: 'inbox' },
+  { label: 'Aquarium', value: 'pet_acc_aquarium', icon: 'tint' },
+  { label: 'Toys', value: 'pet_acc_toys', icon: 'gamepad' },
 ];
 
 const UTILITY_SUB_CATEGORIES: { label: string; value: UtilitySubCategory; icon: string }[] = [
@@ -255,6 +362,11 @@ export default function ExpensesScreen() {
   const [busSubType, setBusSubType] = useState<BusSubType | null>(null);
   const [railSubType, setRailSubType] = useState<RailSubType | null>(null);
   const [uvExpressSubType, setUVExpressSubType] = useState<UVExpressSubType | null>(null);
+  const [schoolExpenseSubCategory, setSchoolExpenseSubCategory] = useState<SchoolExpenseSubCategory | null>(null);
+  const [fitnessGymSubCategory, setFitnessGymSubCategory] = useState<FitnessGymSubCategory | null>(null);
+  const [personalCareSubCategory, setPersonalCareSubCategory] = useState<PersonalCareSubCategory | null>(null);
+  const [petCareSubCategory, setPetCareSubCategory] = useState<PetCareSubCategory | null>(null);
+  const [petAccessorySubCategory, setPetAccessorySubCategory] = useState<PetAccessorySubCategory | null>(null);
   const [gasFuelStation, setGasFuelStation] = useState<GasFuelStation | null>(null);
   const [eWalletProvider, setEWalletProvider] = useState<EWalletProvider | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -365,6 +477,30 @@ export default function ExpensesScreen() {
         if (subLabel) parts.push(`Type: ${subLabel}`);
       }
 
+      if (expenseCategory === 'tuition_and_school_expenses' && schoolExpenseSubCategory) {
+        const subLabel = SCHOOL_EXPENSE_SUB_CATEGORIES.find(s => s.value === schoolExpenseSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
+      if (expenseCategory === 'fitness_gym' && fitnessGymSubCategory) {
+        const subLabel = FITNESS_GYM_SUB_CATEGORIES.find(s => s.value === fitnessGymSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
+      if (expenseCategory === 'personal_care' && personalCareSubCategory) {
+        const subLabel = PERSONAL_CARE_SUB_CATEGORIES.find(s => s.value === personalCareSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
+      if (expenseCategory === 'pet_care' && petCareSubCategory) {
+        const subLabel = PET_CARE_SUB_CATEGORIES.find(s => s.value === petCareSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+        if (petCareSubCategory === 'pet_accessories' && petAccessorySubCategory) {
+          const accLabel = PET_ACCESSORY_SUB_CATEGORIES.find(s => s.value === petAccessorySubCategory)?.label;
+          if (accLabel) parts.push(`SubType: ${accLabel}`);
+        }
+      }
+
       if (expenseCategory === 'gas' && gasFuelStation) {
         const stationLabel = GAS_FUEL_STATIONS.find(s => s.value === gasFuelStation)?.label;
         if (stationLabel) parts.push(`Station: ${stationLabel}`);
@@ -414,6 +550,11 @@ export default function ExpensesScreen() {
     setBusSubType(null);
     setRailSubType(null);
     setUVExpressSubType(null);
+    setSchoolExpenseSubCategory(null);
+    setFitnessGymSubCategory(null);
+    setPersonalCareSubCategory(null);
+    setPetCareSubCategory(null);
+    setPetAccessorySubCategory(null);
     setGasFuelStation(null);
     setEWalletProvider(null);
     setPaymentMethod(null);
@@ -438,6 +579,15 @@ export default function ExpensesScreen() {
     const categoryMap: Record<ExpenseCategory, string> = {
       'food_groceries': 'Food & Groceries',
       'pet_supplies': 'Pet Supplies',
+      'pet_care': 'Pet Care',
+      'pet_food': 'Pet Care', 'pet_treats': 'Pet Care', 'pet_vitamins': 'Pet Care',
+      'pet_checkup': 'Pet Care', 'pet_vaccines': 'Pet Care', 'pet_deworming': 'Pet Care',
+      'pet_medications': 'Pet Care', 'pet_neuter_spay': 'Pet Care', 'pet_grooming': 'Pet Care',
+      'pet_accessories': 'Pet Care',
+      'pet_acc_collar': 'Pet Care', 'pet_acc_leash': 'Pet Care', 'pet_acc_harness': 'Pet Care',
+      'pet_acc_food_bowl': 'Pet Care', 'pet_acc_water_bowl': 'Pet Care', 'pet_acc_bed': 'Pet Care',
+      'pet_acc_cage': 'Pet Care', 'pet_acc_carrier': 'Pet Care', 'pet_acc_litter_box': 'Pet Care',
+      'pet_acc_litter_sand': 'Pet Care', 'pet_acc_aquarium': 'Pet Care', 'pet_acc_toys': 'Pet Care',
       'dining': 'Dining',
       'shopping': 'Shopping',
       'transportation': 'Transportation',
@@ -461,8 +611,34 @@ export default function ExpensesScreen() {
       'school_service': 'School Service',
       'school_supplies': 'School Supplies',
       'allowance': 'Allowance',
+      'school_project': 'School Project',
+      'tuition_and_school_expenses': 'Tuition and School Expenses',
+      'uniforms_clothing': 'Uniforms & Clothing',
+      'books_learning_materials': 'Books & Learning Materials',
+      'school_transportation': 'Transportation',
+      'meals_allowance': 'Meals & Allowance',
+      'technology_gadgets': 'Technology & Gadgets',
+      'field_trip': 'Field Trip',
+      'graduation': 'Graduation',
+      'extracurricular_activities': 'Extracurricular Activities',
+      'health_miscellaneous': 'Health & Miscellaneous',
       'remittance': 'Remittance',
+      'fitness_gym': 'Fitness / Gym',
+      'fg_gym_fees': 'Fitness / Gym', 'fg_sports_clubs': 'Fitness / Gym',
+      'fg_equipment': 'Fitness / Gym', 'fg_activewear': 'Fitness / Gym',
       'personal_care_leisure': 'Personal Care and Leisure',
+      'personal_care': 'Personal Care',
+      'pc_acne_treatments': 'Personal Care', 'pc_chemical_peels': 'Personal Care',
+      'pc_dermatologist': 'Personal Care', 'pc_dewarts': 'Personal Care',
+      'pc_face_masks': 'Personal Care', 'pc_hair_coloring': 'Personal Care',
+      'pc_hair_cut': 'Personal Care', 'pc_hair_rebonding': 'Personal Care',
+      'pc_hair_treatment': 'Personal Care', 'pc_hair_wash': 'Personal Care',
+      'pc_laser_treatments': 'Personal Care', 'pc_manicure_pedicure': 'Personal Care',
+      'pc_massage_spa': 'Personal Care', 'pc_microdermabrasion': 'Personal Care',
+      'pc_nail_art': 'Personal Care', 'pc_reflexology': 'Personal Care',
+      'pc_regular_facials': 'Personal Care', 'pc_sauna': 'Personal Care',
+      'pc_whitening': 'Personal Care',
+      'leisure': 'Leisure',
       'license_registration_certification': 'License, Registration and Certification',
     };
 
@@ -518,7 +694,8 @@ export default function ExpensesScreen() {
     // Reverse map from DATABASE category names to expense category enum
     const reverseMap: Record<string, ExpenseCategory> = {
       'Food & Groceries': 'food_groceries',
-      'Pet Supplies': 'pet_supplies',
+      'Pet Supplies': 'pet_care',
+      'Pet Care': 'pet_care',
       'Dining': 'dining',
       'Shopping': 'shopping',
       'Transportation': 'transportation',
@@ -540,12 +717,25 @@ export default function ExpensesScreen() {
       'Vacation': 'vacation',
       'Rent': 'rent',
       'Taxes': 'taxes',
-      'Tuition Fee': 'tuition_fee',
-      'School Service': 'school_service',
-      'School Supplies': 'school_supplies',
-      'Allowance': 'allowance',
+      'Tuition Fee': 'tuition_and_school_expenses',
+      'School Service': 'tuition_and_school_expenses',
+      'School Supplies': 'tuition_and_school_expenses',
+      'Allowance': 'tuition_and_school_expenses',
+      'School Project': 'tuition_and_school_expenses',
+      'Tuition and School Expenses': 'tuition_and_school_expenses',
+      'Uniforms & Clothing': 'tuition_and_school_expenses',
+      'Books & Learning Materials': 'tuition_and_school_expenses',
+      'Meals & Allowance': 'tuition_and_school_expenses',
+      'Technology & Gadgets': 'tuition_and_school_expenses',
+      'Field Trip': 'tuition_and_school_expenses',
+      'Graduation': 'tuition_and_school_expenses',
+      'Extracurricular Activities': 'tuition_and_school_expenses',
+      'Health & Miscellaneous': 'tuition_and_school_expenses',
       'Remittance': 'remittance',
-      'Personal Care and Leisure': 'personal_care_leisure',
+      'Personal Care and Leisure': 'personal_care',
+      'Personal Care': 'personal_care',
+      'Leisure': 'leisure',
+      'Fitness / Gym': 'fitness_gym',
       'License, Registration and Certification': 'license_registration_certification',
     };
 
@@ -656,6 +846,51 @@ export default function ExpensesScreen() {
     return found ? found.value : null;
   };
 
+  const parseNotesForPersonalCareSubCategory = (notes: string | null): PersonalCareSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = PERSONAL_CARE_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForPetCareSubCategory = (notes: string | null): PetCareSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = PET_CARE_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForPetAccessorySubCategory = (notes: string | null): PetAccessorySubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/SubType:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = PET_ACCESSORY_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForSchoolExpenseSubCategory = (notes: string | null): SchoolExpenseSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = SCHOOL_EXPENSE_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForFitnessGymSubCategory = (notes: string | null): FitnessGymSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = FITNESS_GYM_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
   const parseCategoryFromNotes = (notes: string | null): ExpenseCategory | null => {
     if (!notes) return null;
 
@@ -680,10 +915,38 @@ export default function ExpensesScreen() {
   const handleEdit = (transaction: any) => {
     setEditingTransaction(transaction);
 
-    // Restore category selections - try category_id first, then fallback to notes
+    // Restore category selections - try category_id first, then notes label lookup,
+    // then direct label-to-value map as a bundle-version-safe fallback.
     let expenseCat = getExpenseCategoryFromId(transaction.category_id);
     if (!expenseCat) {
       expenseCat = parseCategoryFromNotes(transaction.notes);
+    }
+    if (!expenseCat && transaction.notes) {
+      // Last resort: extract the raw label from notes and map known labels directly
+      const labelMap: Record<string, ExpenseCategory> = {
+        'Tuition and School Expenses': 'tuition_and_school_expenses',
+        'Tuition Fee': 'tuition_and_school_expenses',
+        'School Service': 'tuition_and_school_expenses',
+        'School Supplies': 'tuition_and_school_expenses',
+        'Allowance': 'tuition_and_school_expenses',
+        'Pet Care': 'pet_care',
+        'Pet Supplies': 'pet_care',
+        'Personal Care and Leisure': 'personal_care',
+        'Personal Care': 'personal_care',
+        'Leisure': 'leisure',
+        'Fitness / Gym': 'fitness_gym',
+      };
+      for (const line of transaction.notes.split('\n')) {
+        if (!line.includes('Category:')) continue;
+        for (const part of line.split(' | ')) {
+          const t = part.trim();
+          if (t.startsWith('Category: ')) {
+            const lbl = t.replace('Category: ', '').trim();
+            if (labelMap[lbl]) { expenseCat = labelMap[lbl]; break; }
+          }
+        }
+        if (expenseCat) break;
+      }
     }
 
     if (expenseCat) {
@@ -710,6 +973,24 @@ export default function ExpensesScreen() {
               INTERNET_PROVIDERS;
             const match = providers.find(p => p.label === vendorLabel);
             setUtilityProvider(match ? match.value : 'others');
+          }
+        }
+      } else if (expenseCat === 'fitness_gym') {
+        const fitnessSub = parseNotesForFitnessGymSubCategory(transaction.notes);
+        if (fitnessSub) setFitnessGymSubCategory(fitnessSub);
+      } else if (expenseCat === 'tuition_and_school_expenses') {
+        const schoolSub = parseNotesForSchoolExpenseSubCategory(transaction.notes);
+        if (schoolSub) setSchoolExpenseSubCategory(schoolSub);
+      } else if (expenseCat === 'personal_care') {
+        const pcSub = parseNotesForPersonalCareSubCategory(transaction.notes);
+        if (pcSub) setPersonalCareSubCategory(pcSub);
+      } else if (expenseCat === 'pet_care') {
+        const petSub = parseNotesForPetCareSubCategory(transaction.notes);
+        if (petSub) {
+          setPetCareSubCategory(petSub);
+          if (petSub === 'pet_accessories') {
+            const accSub = parseNotesForPetAccessorySubCategory(transaction.notes);
+            if (accSub) setPetAccessorySubCategory(accSub);
           }
         }
       } else if (expenseCat === 'gas') {
@@ -805,7 +1086,17 @@ export default function ExpensesScreen() {
     if (data.vendor) notesContent.push(`Vendor: ${data.vendor}`);
     if (data.notes) notesContent.push(data.notes);
 
-    const categoryId = expenseCategory ? getCategoryId(expenseCategory) : null;
+    const categoryId = expenseCategory === 'tuition_and_school_expenses'
+      ? (schoolExpenseSubCategory
+          ? (getCategoryId(schoolExpenseSubCategory as ExpenseCategory) ?? getCategoryId('tuition_fee'))
+          : getCategoryId('tuition_fee'))
+      : expenseCategory === 'personal_care'
+        ? (getCategoryId('personal_care') ?? getCategoryId('personal_care_leisure'))
+      : expenseCategory === 'pet_care'
+        ? (getCategoryId('pet_care') ?? getCategoryId('pet_supplies'))
+      : expenseCategory === 'fitness_gym'
+        ? getCategoryId('fitness_gym')
+        : expenseCategory ? getCategoryId(expenseCategory) : null;
 
     console.log('📝 Final Category ID to save:', categoryId);
     console.log('📝 Category Info for notes:', categoryInfo);
@@ -900,8 +1191,17 @@ export default function ExpensesScreen() {
 
               {group.transactions.map((transaction) => {
                 const categoryName = getCategoryDisplayLabel(transaction.category_id)
-                  ?? EXPENSE_CATEGORIES.find(c => c.value === parseCategoryFromNotes(transaction.notes))?.label
-                  ?? null;
+                  ?? (() => {
+                      if (!transaction.notes) return null;
+                      for (const line of transaction.notes.split('\n')) {
+                        if (!line.includes('Category:')) continue;
+                        for (const part of line.split(' | ')) {
+                          const t = part.trim();
+                          if (t.startsWith('Category: ')) return t.replace('Category: ', '').trim() || null;
+                        }
+                      }
+                      return null;
+                    })();
                 return (
                   <Card key={transaction.id} variant="elevated" className="mb-2">
                     <View className="flex-row items-center">
@@ -1008,11 +1308,83 @@ export default function ExpensesScreen() {
                     setBusSubType(null);
                     setRailSubType(null);
                     setUVExpressSubType(null);
+                    setSchoolExpenseSubCategory(null);
+                    setPersonalCareSubCategory(null);
+                    setPetCareSubCategory(null);
+                    setPetAccessorySubCategory(null);
                     setGasFuelStation(null);
                   }}
                   iconColor="#dc2626"
                 />
               </View>
+
+              {expenseCategory === 'tuition_and_school_expenses' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="School Expense Type"
+                    placeholder="Select type"
+                    options={SCHOOL_EXPENSE_SUB_CATEGORIES}
+                    value={schoolExpenseSubCategory}
+                    onValueChange={(value) => setSchoolExpenseSubCategory(value as SchoolExpenseSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'fitness_gym' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Fitness / Gym Type"
+                    placeholder="Select type"
+                    options={FITNESS_GYM_SUB_CATEGORIES}
+                    value={fitnessGymSubCategory}
+                    onValueChange={(value) => setFitnessGymSubCategory(value as FitnessGymSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'personal_care' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Personal Care Type"
+                    placeholder="Select type"
+                    options={PERSONAL_CARE_SUB_CATEGORIES}
+                    value={personalCareSubCategory}
+                    onValueChange={(value) => setPersonalCareSubCategory(value as PersonalCareSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'pet_care' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Pet Care Type"
+                    placeholder="Select type"
+                    options={PET_CARE_SUB_CATEGORIES}
+                    value={petCareSubCategory}
+                    onValueChange={(value) => {
+                      setPetCareSubCategory(value as PetCareSubCategory);
+                      setPetAccessorySubCategory(null);
+                    }}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'pet_care' && petCareSubCategory === 'pet_accessories' && (
+                <View style={{ zIndex: 90 }}>
+                  <Select
+                    label="Accessory Type"
+                    placeholder="Select accessory"
+                    options={PET_ACCESSORY_SUB_CATEGORIES}
+                    value={petAccessorySubCategory}
+                    onValueChange={(value) => setPetAccessorySubCategory(value as PetAccessorySubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
 
               {expenseCategory === 'rent' && (
                 <View style={{ zIndex: 95 }}>
