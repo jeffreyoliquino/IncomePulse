@@ -21,6 +21,7 @@ async function loadTemplateData(
   localKey: string,
   userId: string | null
 ): Promise<{ data: Record<string, any> | null; savedAt: string | null }> {
+  console.log(`[BudgetTemplate] loadTemplateData type=${type} userId=${userId} supabaseConfigured=${isSupabaseConfigured}`);
   if (userId && isSupabaseConfigured) {
     try {
       const { data, error } = await supabase
@@ -32,9 +33,12 @@ async function loadTemplateData(
       if (error) {
         console.error('[BudgetTemplate] load error:', error.message);
       } else if (data) {
+        console.log(`[BudgetTemplate] loaded from Supabase type=${type}`);
         // Update local cache with latest from server
         await AsyncStorage.setItem(localKey, JSON.stringify(data.data));
         return { data: data.data, savedAt: data.saved_at };
+      } else {
+        console.log(`[BudgetTemplate] no Supabase row found for type=${type}`);
       }
     } catch (e) {
       console.error('[BudgetTemplate] load exception:', e);
@@ -43,6 +47,7 @@ async function loadTemplateData(
 
   // Fallback: local cache (offline / not logged in)
   const raw = await AsyncStorage.getItem(localKey);
+  console.log(`[BudgetTemplate] AsyncStorage for type=${type}: ${raw ? 'found' : 'empty'}`);
   if (!raw) return { data: null, savedAt: null };
   const parsed = JSON.parse(raw);
   return { data: parsed, savedAt: parsed.savedAt ?? null };
@@ -73,10 +78,14 @@ async function saveTemplateData(
       );
       if (error) {
         console.error('[BudgetTemplate] save error:', error.message);
+      } else {
+        console.log(`[BudgetTemplate] saved to Supabase type=${type} userId=${userId}`);
       }
     } catch (e) {
       console.error('[BudgetTemplate] save exception:', e);
     }
+  } else {
+    console.log(`[BudgetTemplate] skipped Supabase save type=${type} userId=${userId} supabaseConfigured=${isSupabaseConfigured}`);
   }
 }
 
@@ -437,7 +446,7 @@ const EMP_IPON: FieldDef[] = [
 const STORAGE_KEY_EMPLOYEE = 'budget_template_employee';
 
 function EmployeeTemplate() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -454,6 +463,7 @@ function EmployeeTemplate() {
   );
 
   useEffect(() => {
+    if (isLoading) return;
     loadTemplateData('employee', STORAGE_KEY_EMPLOYEE, user?.id ?? null).then(({ data, savedAt: at }) => {
       if (!data) return;
       setCycle(data.cycle ?? '');
@@ -465,7 +475,7 @@ function EmployeeTemplate() {
       setSavedAt(at);
       setMode('view');
     });
-  }, [user?.id]);
+  }, [user?.id, isLoading]);
 
   const handleSave = async () => {
     await saveTemplateData('employee', STORAGE_KEY_EMPLOYEE, {
@@ -609,7 +619,7 @@ const OFW_SINKING: FieldDef[] = [
 const STORAGE_KEY_OFW = 'budget_template_ofw';
 
 function OFWTemplate() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -627,6 +637,7 @@ function OFWTemplate() {
   );
 
   useEffect(() => {
+    if (isLoading) return;
     loadTemplateData('ofw', STORAGE_KEY_OFW, user?.id ?? null).then(({ data, savedAt: at }) => {
       if (!data) return;
       setCycle(data.cycle ?? '');
@@ -639,7 +650,7 @@ function OFWTemplate() {
       setSavedAt(at);
       setMode('view');
     });
-  }, [user?.id]);
+  }, [user?.id, isLoading]);
 
   const handleSave = async () => {
     await saveTemplateData('ofw', STORAGE_KEY_OFW, {
@@ -760,7 +771,7 @@ const STU_GOALS: FieldDef[] = [
 const STORAGE_KEY_STUDENT = 'budget_template_student';
 
 function StudentTemplate() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [cycle, setCycle] = useState('');
   const [mode, setMode] = useState<'edit' | 'view'>('edit');
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -777,6 +788,7 @@ function StudentTemplate() {
   );
 
   useEffect(() => {
+    if (isLoading) return;
     loadTemplateData('student', STORAGE_KEY_STUDENT, user?.id ?? null).then(({ data, savedAt: at }) => {
       if (!data) return;
       setCycle(data.cycle ?? '');
@@ -788,7 +800,7 @@ function StudentTemplate() {
       setSavedAt(at);
       setMode('view');
     });
-  }, [user?.id]);
+  }, [user?.id, isLoading]);
 
   const handleSave = async () => {
     await saveTemplateData('student', STORAGE_KEY_STUDENT, {
