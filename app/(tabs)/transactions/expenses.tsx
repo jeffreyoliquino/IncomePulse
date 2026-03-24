@@ -35,14 +35,19 @@ type ExpenseCategory =
   | 'pet_acc_collar' | 'pet_acc_leash' | 'pet_acc_harness' | 'pet_acc_food_bowl'
   | 'pet_acc_water_bowl' | 'pet_acc_bed' | 'pet_acc_cage' | 'pet_acc_carrier'
   | 'pet_acc_litter_box' | 'pet_acc_litter_sand' | 'pet_acc_aquarium' | 'pet_acc_toys'
-  | 'remittance' | 'personal_care_leisure' | 'personal_care' | 'leisure' | 'license_registration_certification'
+  | 'remittance' | 'rm_business_capital' | 'rm_house_repair' | 'rm_kids_education'
+  | 'rm_monthly_allowance' | 'rm_parents_support' | 'rm_siblings_education'
+  | 'personal_care_leisure' | 'personal_care' | 'leisure' | 'license_registration_certification'
   | 'pc_acne_treatments' | 'pc_chemical_peels' | 'pc_dermatologist' | 'pc_dewarts'
   | 'pc_face_masks' | 'pc_hair_coloring' | 'pc_hair_cut' | 'pc_hair_rebonding'
   | 'pc_hair_treatment' | 'pc_hair_wash' | 'pc_laser_treatments' | 'pc_manicure_pedicure'
   | 'pc_massage_spa' | 'pc_microdermabrasion' | 'pc_nail_art' | 'pc_reflexology'
   | 'pc_regular_facials' | 'pc_sauna' | 'pc_whitening'
-  | 'fitness_gym' | 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear';
+  | 'fitness_gym' | 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear'
+  | 'visa_work_permit' | 'vwp_medical_exam' | 'vwp_residence_id' | 'vwp_visa_renewal' | 'vwp_work_permit';
 type FitnessGymSubCategory = 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear';
+type VisaWorkPermitSubCategory = 'vwp_medical_exam' | 'vwp_residence_id' | 'vwp_visa_renewal' | 'vwp_work_permit';
+type RemittanceSubCategory = 'rm_business_capital' | 'rm_house_repair' | 'rm_kids_education' | 'rm_monthly_allowance' | 'rm_parents_support' | 'rm_siblings_education';
 type PersonalCareSubCategory =
   | 'pc_acne_treatments' | 'pc_chemical_peels' | 'pc_dermatologist' | 'pc_dewarts'
   | 'pc_face_masks' | 'pc_hair_coloring' | 'pc_hair_cut' | 'pc_hair_rebonding'
@@ -115,6 +120,7 @@ const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string 
   { label: 'Utilities', value: 'utilities', icon: 'bolt' },
   { label: 'Vacation', value: 'vacation', icon: 'umbrella' },
   { label: 'Vehicle Maintenance', value: 'vehicle_maintenance', icon: 'car' },
+  { label: 'Visa & Work Permit', value: 'visa_work_permit', icon: 'id-card-o' },
 ];
 
 const PAYMENT_METHODS: { label: string; value: PaymentMethod; icon: string }[] = [
@@ -184,6 +190,22 @@ const FITNESS_GYM_SUB_CATEGORIES: { label: string; value: FitnessGymSubCategory;
   { label: 'Equipment (Weights, Mats, Resistance Bands)', value: 'fg_equipment', icon: 'trophy' },
   { label: 'Gym Fees', value: 'fg_gym_fees', icon: 'credit-card' },
   { label: 'Sports Clubs', value: 'fg_sports_clubs', icon: 'group' },
+];
+
+const REMITTANCE_SUB_CATEGORIES: { label: string; value: RemittanceSubCategory; icon: string }[] = [
+  { label: 'Business Capital and Operations', value: 'rm_business_capital', icon: 'briefcase' },
+  { label: 'House Repair', value: 'rm_house_repair', icon: 'wrench' },
+  { label: "Kids' Education", value: 'rm_kids_education', icon: 'graduation-cap' },
+  { label: 'Monthly Allowance for the Family', value: 'rm_monthly_allowance', icon: 'calendar' },
+  { label: "Parents' Support", value: 'rm_parents_support', icon: 'heart' },
+  { label: "Siblings' Education", value: 'rm_siblings_education', icon: 'book' },
+];
+
+const VISA_WORK_PERMIT_SUB_CATEGORIES: { label: string; value: VisaWorkPermitSubCategory; icon: string }[] = [
+  { label: 'Medical Exams', value: 'vwp_medical_exam', icon: 'stethoscope' },
+  { label: 'Residence ID Renewals', value: 'vwp_residence_id', icon: 'id-card-o' },
+  { label: 'Visa Renewals', value: 'vwp_visa_renewal', icon: 'plane' },
+  { label: 'Work Permit Fees', value: 'vwp_work_permit', icon: 'briefcase' },
 ];
 
 const PERSONAL_CARE_SUB_CATEGORIES: { label: string; value: PersonalCareSubCategory; icon: string }[] = [
@@ -364,6 +386,8 @@ export default function ExpensesScreen() {
   const [uvExpressSubType, setUVExpressSubType] = useState<UVExpressSubType | null>(null);
   const [schoolExpenseSubCategory, setSchoolExpenseSubCategory] = useState<SchoolExpenseSubCategory | null>(null);
   const [fitnessGymSubCategory, setFitnessGymSubCategory] = useState<FitnessGymSubCategory | null>(null);
+  const [remittanceSubCategory, setRemittanceSubCategory] = useState<RemittanceSubCategory | null>(null);
+  const [visaWorkPermitSubCategory, setVisaWorkPermitSubCategory] = useState<VisaWorkPermitSubCategory | null>(null);
   const [personalCareSubCategory, setPersonalCareSubCategory] = useState<PersonalCareSubCategory | null>(null);
   const [petCareSubCategory, setPetCareSubCategory] = useState<PetCareSubCategory | null>(null);
   const [petAccessorySubCategory, setPetAccessorySubCategory] = useState<PetAccessorySubCategory | null>(null);
@@ -487,6 +511,16 @@ export default function ExpensesScreen() {
         if (subLabel) parts.push(`Type: ${subLabel}`);
       }
 
+      if (expenseCategory === 'remittance' && remittanceSubCategory) {
+        const subLabel = REMITTANCE_SUB_CATEGORIES.find(s => s.value === remittanceSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
+      if (expenseCategory === 'visa_work_permit' && visaWorkPermitSubCategory) {
+        const subLabel = VISA_WORK_PERMIT_SUB_CATEGORIES.find(s => s.value === visaWorkPermitSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
       if (expenseCategory === 'personal_care' && personalCareSubCategory) {
         const subLabel = PERSONAL_CARE_SUB_CATEGORIES.find(s => s.value === personalCareSubCategory)?.label;
         if (subLabel) parts.push(`Type: ${subLabel}`);
@@ -552,6 +586,8 @@ export default function ExpensesScreen() {
     setUVExpressSubType(null);
     setSchoolExpenseSubCategory(null);
     setFitnessGymSubCategory(null);
+    setRemittanceSubCategory(null);
+    setVisaWorkPermitSubCategory(null);
     setPersonalCareSubCategory(null);
     setPetCareSubCategory(null);
     setPetAccessorySubCategory(null);
@@ -623,6 +659,9 @@ export default function ExpensesScreen() {
       'extracurricular_activities': 'Extracurricular Activities',
       'health_miscellaneous': 'Health & Miscellaneous',
       'remittance': 'Remittance',
+      'rm_business_capital': 'Remittance', 'rm_house_repair': 'Remittance',
+      'rm_kids_education': 'Remittance', 'rm_monthly_allowance': 'Remittance',
+      'rm_parents_support': 'Remittance', 'rm_siblings_education': 'Remittance',
       'fitness_gym': 'Fitness / Gym',
       'fg_gym_fees': 'Fitness / Gym', 'fg_sports_clubs': 'Fitness / Gym',
       'fg_equipment': 'Fitness / Gym', 'fg_activewear': 'Fitness / Gym',
@@ -640,6 +679,9 @@ export default function ExpensesScreen() {
       'pc_whitening': 'Personal Care',
       'leisure': 'Leisure',
       'license_registration_certification': 'License, Registration and Certification',
+      'visa_work_permit': 'Visa & Work Permit',
+      'vwp_medical_exam': 'Visa & Work Permit', 'vwp_residence_id': 'Visa & Work Permit',
+      'vwp_visa_renewal': 'Visa & Work Permit', 'vwp_work_permit': 'Visa & Work Permit',
     };
 
     const mappedName = categoryMap[categoryName];
@@ -737,6 +779,7 @@ export default function ExpensesScreen() {
       'Leisure': 'leisure',
       'Fitness / Gym': 'fitness_gym',
       'License, Registration and Certification': 'license_registration_certification',
+      'Visa & Work Permit': 'visa_work_permit',
     };
 
     return reverseMap[categoryName] || null;
@@ -891,6 +934,24 @@ export default function ExpensesScreen() {
     return found ? found.value : null;
   };
 
+  const parseNotesForRemittanceSubCategory = (notes: string | null): RemittanceSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = REMITTANCE_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
+  const parseNotesForVisaWorkPermitSubCategory = (notes: string | null): VisaWorkPermitSubCategory | null => {
+    if (!notes) return null;
+    const match = notes.match(/Type:\s*([^|]+)/);
+    if (!match) return null;
+    const label = match[1].trim();
+    const found = VISA_WORK_PERMIT_SUB_CATEGORIES.find(s => s.label === label);
+    return found ? found.value : null;
+  };
+
   const parseCategoryFromNotes = (notes: string | null): ExpenseCategory | null => {
     if (!notes) return null;
 
@@ -978,6 +1039,12 @@ export default function ExpensesScreen() {
       } else if (expenseCat === 'fitness_gym') {
         const fitnessSub = parseNotesForFitnessGymSubCategory(transaction.notes);
         if (fitnessSub) setFitnessGymSubCategory(fitnessSub);
+      } else if (expenseCat === 'remittance') {
+        const remitSub = parseNotesForRemittanceSubCategory(transaction.notes);
+        if (remitSub) setRemittanceSubCategory(remitSub);
+      } else if (expenseCat === 'visa_work_permit') {
+        const visaSub = parseNotesForVisaWorkPermitSubCategory(transaction.notes);
+        if (visaSub) setVisaWorkPermitSubCategory(visaSub);
       } else if (expenseCat === 'tuition_and_school_expenses') {
         const schoolSub = parseNotesForSchoolExpenseSubCategory(transaction.notes);
         if (schoolSub) setSchoolExpenseSubCategory(schoolSub);
@@ -1339,6 +1406,32 @@ export default function ExpensesScreen() {
                     options={FITNESS_GYM_SUB_CATEGORIES}
                     value={fitnessGymSubCategory}
                     onValueChange={(value) => setFitnessGymSubCategory(value as FitnessGymSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'remittance' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Remittance Type"
+                    placeholder="Select type"
+                    options={REMITTANCE_SUB_CATEGORIES}
+                    value={remittanceSubCategory}
+                    onValueChange={(value) => setRemittanceSubCategory(value as RemittanceSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'visa_work_permit' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Visa & Work Permit Type"
+                    placeholder="Select type"
+                    options={VISA_WORK_PERMIT_SUB_CATEGORIES}
+                    value={visaWorkPermitSubCategory}
+                    onValueChange={(value) => setVisaWorkPermitSubCategory(value as VisaWorkPermitSubCategory)}
                     iconColor="#dc2626"
                   />
                 </View>

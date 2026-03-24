@@ -19,8 +19,10 @@ import { z } from 'zod';
 
 // Income Categories Structure
 type IncomeCategory = 'active' | 'passive';
-type ActiveIncomeSource = 'monthly_salary' | 'side_hustle' | 'bonus' | '13th_month' | 'business_income' | 'commission';
-type PassiveIncomeSource = 'rent' | 'investment' | 'youtube' | 'dividends' | 'interest' | 'royalties';
+type ActiveIncomeSource = 'monthly_salary' | 'side_hustle' | 'bonus' | '13th_month' | 'business_income' | 'commission'
+  | 'part_time_job' | 'online_tutorial' | 'buy_and_sell' | 'allowance' | 'scholarship_allowance';
+type PassiveIncomeSource = 'rent' | 'investment' | 'youtube' | 'dividends' | 'interest' | 'royalties'
+  | 'digital_products' | 'affiliate_marketing';
 type PropertyType = 'apartment' | 'house' | 'lot' | 'others';
 
 const INCOME_CATEGORIES: { label: string; value: IncomeCategory; icon: string }[] = [
@@ -35,15 +37,22 @@ const ACTIVE_INCOME_SOURCES: { label: string; value: ActiveIncomeSource; icon: s
   { label: '13th Month', value: '13th_month', icon: 'calendar-check-o' },
   { label: 'Business Income', value: 'business_income', icon: 'building' },
   { label: 'Commission', value: 'commission', icon: 'percent' },
+  { label: 'Part-Time Job', value: 'part_time_job', icon: 'clock-o' },
+  { label: 'Online Tutorial', value: 'online_tutorial', icon: 'laptop' },
+  { label: 'Buy and Sell', value: 'buy_and_sell', icon: 'exchange' },
+  { label: 'Allowance', value: 'allowance', icon: 'money' },
+  { label: 'Scholarship Allowance', value: 'scholarship_allowance', icon: 'graduation-cap' },
 ];
 
 const PASSIVE_INCOME_SOURCES: { label: string; value: PassiveIncomeSource; icon: string }[] = [
   { label: 'Rent', value: 'rent', icon: 'home' },
   { label: 'Investment', value: 'investment', icon: 'line-chart' },
-  { label: 'Youtube', value: 'youtube', icon: 'youtube-play' },
+  { label: 'Youtube / Content Creation', value: 'youtube', icon: 'youtube-play' },
   { label: 'Dividends', value: 'dividends', icon: 'pie-chart' },
   { label: 'Interest', value: 'interest', icon: 'bank' },
   { label: 'Royalties', value: 'royalties', icon: 'star' },
+  { label: 'Digital Products', value: 'digital_products', icon: 'file-o' },
+  { label: 'Affiliate Marketing (Shopee, Lazada, Tiktok)', value: 'affiliate_marketing', icon: 'share-alt' },
 ];
 
 const PROPERTY_TYPES: { label: string; value: PropertyType; icon: string }[] = [
