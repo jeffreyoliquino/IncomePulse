@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface SelectOption {
@@ -37,14 +37,14 @@ export const Select: React.FC<SelectProps> = ({
     : 'border-surface-300';
 
   return (
-    <View className="mb-4" style={{ zIndex: isOpen ? 1000 : 1 }}>
+    <View className="mb-4">
       {label && (
         <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-300">
           {label}
         </Text>
       )}
       <Pressable
-        onPress={() => setIsOpen(!isOpen)}
+        onPress={() => setIsOpen(true)}
         className={`flex-row items-center justify-between rounded-xl border bg-white dark:bg-surface-800 px-4 py-3 ${borderColor}`}
       >
         <View className="flex-row items-center flex-1">
@@ -73,59 +73,72 @@ export const Select: React.FC<SelectProps> = ({
         />
       </Pressable>
 
-      {isOpen && (
-        <View
-          className="absolute left-0 right-0 bg-white dark:bg-surface-800 rounded-xl border border-surface-300 dark:border-surface-600 mt-1 shadow-lg"
-          style={{ top: label ? 68 : 48, zIndex: 1001, maxHeight: 200 }}
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+          onPress={() => setIsOpen(false)}
         >
-          <ScrollView nestedScrollEnabled>
-            {options.map((option, index) => (
-              <Pressable
-                key={option.value}
-                onPress={() => {
-                  onValueChange(option.value);
-                  setIsOpen(false);
-                }}
-                className={`flex-row items-center px-4 py-3 ${
-                  index < options.length - 1
-                    ? 'border-b border-surface-100 dark:border-surface-700'
-                    : ''
-                } ${
-                  value === option.value
-                    ? 'bg-primary-50 dark:bg-primary-900/20'
-                    : ''
-                }`}
-              >
-                {option.icon && (
-                  <FontAwesome
-                    name={option.icon as any}
-                    size={14}
-                    color={value === option.value ? '#2563eb' : iconColor}
-                    style={{ marginRight: 10 }}
-                  />
-                )}
-                <Text
-                  className={`text-base ${
-                    value === option.value
-                      ? 'text-primary-600 font-medium'
-                      : 'text-surface-700 dark:text-surface-300'
-                  }`}
-                >
-                  {option.label}
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View style={{ backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 24 }}>
+              {/* Handle bar */}
+              <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}>
+                <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#cbd5e1' }} />
+              </View>
+              {/* Title */}
+              {label && (
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#0f172a', paddingHorizontal: 20, paddingBottom: 12 }}>
+                  {label}
                 </Text>
-                {value === option.value && (
-                  <FontAwesome
-                    name="check"
-                    size={14}
-                    color="#2563eb"
-                    style={{ marginLeft: 'auto' }}
-                  />
-                )}
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
-      )}
+              )}
+              <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+                {options.map((option, index) => (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => {
+                      onValueChange(option.value);
+                      setIsOpen(false);
+                    }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 20,
+                      paddingVertical: 14,
+                      borderBottomWidth: index < options.length - 1 ? 1 : 0,
+                      borderBottomColor: '#f1f5f9',
+                      backgroundColor: value === option.value ? '#eff6ff' : 'transparent',
+                    }}
+                  >
+                    {option.icon && (
+                      <FontAwesome
+                        name={option.icon as any}
+                        size={16}
+                        color={value === option.value ? '#2563eb' : iconColor}
+                        style={{ marginRight: 12, width: 20 }}
+                      />
+                    )}
+                    <Text style={{
+                      flex: 1,
+                      fontSize: 16,
+                      color: value === option.value ? '#2563eb' : '#374151',
+                      fontWeight: value === option.value ? '600' : '400',
+                    }}>
+                      {option.label}
+                    </Text>
+                    {value === option.value && (
+                      <FontAwesome name="check" size={14} color="#2563eb" />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {error && (
         <Text className="mt-1 text-sm text-danger-500">{error}</Text>
