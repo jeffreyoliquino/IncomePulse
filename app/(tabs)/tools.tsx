@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Card } from '@/src/components/ui';
+import { PremiumGate } from '@/src/components/ui/PremiumGate';
+import { useSubscription } from '@/src/hooks/useSubscription';
 import { SalaryCalculator } from '@/src/features/salary-calculator/SalaryCalculator';
 import { LoanCalculator } from '@/src/features/loan-calculator/LoanCalculator';
 import { CurrencyConverter } from '@/src/features/currency/CurrencyConverter';
@@ -22,6 +24,7 @@ const TOOLS = [
     icon: 'money' as const,
     color: '#16a34a',
     bgColor: '#dcfce7',
+    premium: false,
   },
   {
     id: 'loan' as const,
@@ -30,6 +33,7 @@ const TOOLS = [
     icon: 'bank' as const,
     color: '#2563eb',
     bgColor: '#dbeafe',
+    premium: false,
   },
   {
     id: 'currency' as const,
@@ -38,6 +42,7 @@ const TOOLS = [
     icon: 'usd' as const,
     color: '#f59e0b',
     bgColor: '#fef3c7',
+    premium: false,
   },
   {
     id: 'cashflow' as const,
@@ -46,6 +51,7 @@ const TOOLS = [
     icon: 'area-chart' as const,
     color: '#7c3aed',
     bgColor: '#ede9fe',
+    premium: true,
   },
   {
     id: 'receipt' as const,
@@ -54,6 +60,7 @@ const TOOLS = [
     icon: 'camera' as const,
     color: '#ec4899',
     bgColor: '#fce7f3',
+    premium: true,
   },
   {
     id: 'sms' as const,
@@ -62,6 +69,7 @@ const TOOLS = [
     icon: 'commenting' as const,
     color: '#0ea5e9',
     bgColor: '#e0f2fe',
+    premium: true,
   },
   {
     id: 'coach' as const,
@@ -70,6 +78,7 @@ const TOOLS = [
     icon: 'comments' as const,
     color: '#8b5cf6',
     bgColor: '#ede9fe',
+    premium: true,
   },
   {
     id: 'price' as const,
@@ -78,6 +87,7 @@ const TOOLS = [
     icon: 'tags' as const,
     color: '#0d9488',
     bgColor: '#ccfbf1',
+    premium: true,
   },
   {
     id: 'budget-template' as const,
@@ -86,6 +96,7 @@ const TOOLS = [
     icon: 'file-text-o' as const,
     color: '#ea580c',
     bgColor: '#ffedd5',
+    premium: true,
   },
 ];
 
@@ -103,8 +114,10 @@ const TOOL_LABELS: Record<string, string> = {
 
 export default function ToolsScreen() {
   const [activeTool, setActiveTool] = useState<ActiveTool>('menu');
+  const { isPremium } = useSubscription();
 
   if (activeTool !== 'menu') {
+    const tool = TOOLS.find((t) => t.id === activeTool)!;
     const ToolComponent = {
       salary: SalaryCalculator,
       loan: LoanCalculator,
@@ -127,7 +140,16 @@ export default function ToolsScreen() {
             {TOOL_LABELS[activeTool]}
           </Text>
         </View>
-        <ToolComponent />
+        {tool.premium && !isPremium ? (
+          <PremiumGate
+            featureName={tool.title}
+            featureDescription={tool.description}
+          >
+            <ToolComponent />
+          </PremiumGate>
+        ) : (
+          <ToolComponent />
+        )}
       </View>
     );
   }
@@ -160,7 +182,16 @@ export default function ToolsScreen() {
                 {tool.description}
               </Text>
             </View>
-            <FontAwesome name="chevron-right" size={14} color="#94a3b8" />
+            {tool.premium && !isPremium ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={{ backgroundColor: '#fef3c7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#d97706' }}>PRO</Text>
+                </View>
+                <FontAwesome name="lock" size={13} color="#d97706" />
+              </View>
+            ) : (
+              <FontAwesome name="chevron-right" size={14} color="#94a3b8" />
+            )}
           </View>
         </Card>
       ))}

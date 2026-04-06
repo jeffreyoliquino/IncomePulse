@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 interface SelectOption {
   label: string;
@@ -28,6 +31,7 @@ export const Select: React.FC<SelectProps> = ({
   iconColor = '#64748b',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const selectedOption = options.find((opt) => opt.value === value);
   const borderColor = error
@@ -84,7 +88,7 @@ export const Select: React.FC<SelectProps> = ({
           onPress={() => setIsOpen(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View style={{ backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 24 }}>
+            <View style={{ backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: insets.bottom + 16 }}>
               {/* Handle bar */}
               <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}>
                 <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#cbd5e1' }} />
@@ -95,7 +99,7 @@ export const Select: React.FC<SelectProps> = ({
                   {label}
                 </Text>
               )}
-              <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+              <ScrollView style={{ maxHeight: SCREEN_HEIGHT * 0.5 }} showsVerticalScrollIndicator={true}>
                 {options.map((option, index) => (
                   <Pressable
                     key={option.value}

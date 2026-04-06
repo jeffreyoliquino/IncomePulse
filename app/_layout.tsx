@@ -11,6 +11,7 @@ import { ThemeProvider, useTheme } from '@/src/lib/ThemeProvider';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { isSupabaseConfigured } from '@/src/lib/supabase';
 import { useAppStore } from '@/src/stores/appStore';
+import { initializePurchases, syncSubscriptionStatus } from '@/src/lib/purchases';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -21,11 +22,23 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, isPasswordRecovery } = useAuth();
+  const { isAuthenticated, isLoading, isPasswordRecovery, user } = useAuth();
   const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
   const fetchSavingsTargetFromCloud = useAppStore((s) => s.fetchSavingsTargetFromCloud);
   const segments = useSegments();
   const router = useRouter();
+
+  // Initialize RevenueCat once on mount
+  useEffect(() => {
+    initializePurchases(user?.id);
+  }, []);
+
+  // Sync subscription status when user signs in
+  useEffect(() => {
+    if (isAuthenticated) {
+      syncSubscriptionStatus(user?.id);
+    }
+  }, [isAuthenticated, user?.id]);
 
   // Sync settings from cloud when authenticated
   useEffect(() => {

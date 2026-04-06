@@ -2,6 +2,7 @@ import { ExpenseBreakdownChart } from '@/src/components/charts/ExpenseBreakdownC
 import { IncomeExpenseChart } from '@/src/components/charts/IncomeExpenseChart';
 import { SavingsRateChart } from '@/src/components/charts/SavingsRateChart';
 import { Button, Card, DatePicker } from '@/src/components/ui';
+import { BannerAd } from '@/src/components/ui/BannerAd';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { useDashboardData } from '@/src/features/dashboard/hooks/useDashboardData';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
@@ -666,6 +667,9 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Banner ad — only shown to free users */}
+      <BannerAd />
     </ScrollView>
   );
 }

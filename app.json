@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.budgetbox.app",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Use Face ID to securely sign in to BudgetBox",
-        "NSCameraUsageDescription": "Scan receipts and bills with your camera"
+        "NSCameraUsageDescription": "Scan receipts and bills with your camera",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -32,7 +33,11 @@
       "permissions": [
         "CAMERA",
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -54,10 +59,23 @@
         {
           "cameraPermission": "Allow BudgetBox to use the camera to scan receipts"
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-4275093458052066~8505674656",
+          "iosAppId": "ca-app-pub-4275093458052066~7356244517"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "69f9cfd8-227b-4fa6-8f4f-59fa00132aa3"
+      }
     }
   }
 }

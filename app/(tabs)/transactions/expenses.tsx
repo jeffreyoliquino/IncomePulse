@@ -30,6 +30,7 @@ type ExpenseCategory =
   | 'uniforms_clothing' | 'books_learning_materials' | 'school_transportation'
   | 'meals_allowance' | 'technology_gadgets' | 'field_trip'
   | 'extracurricular_activities' | 'health_miscellaneous' | 'graduation'
+  | 'review' | 'training' | 'ojt'
   | 'pet_food' | 'pet_treats' | 'pet_vitamins' | 'pet_checkup' | 'pet_vaccines'
   | 'pet_deworming' | 'pet_medications' | 'pet_neuter_spay' | 'pet_grooming' | 'pet_accessories'
   | 'pet_acc_collar' | 'pet_acc_leash' | 'pet_acc_harness' | 'pet_acc_food_bowl'
@@ -44,7 +45,8 @@ type ExpenseCategory =
   | 'pc_massage_spa' | 'pc_microdermabrasion' | 'pc_nail_art' | 'pc_reflexology'
   | 'pc_regular_facials' | 'pc_sauna' | 'pc_whitening'
   | 'fitness_gym' | 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear'
-  | 'visa_work_permit' | 'vwp_medical_exam' | 'vwp_residence_id' | 'vwp_visa_renewal' | 'vwp_work_permit';
+  | 'visa_work_permit' | 'vwp_medical_exam' | 'vwp_residence_id' | 'vwp_visa_renewal' | 'vwp_work_permit'
+  | 'other_expense';
 type FitnessGymSubCategory = 'fg_gym_fees' | 'fg_sports_clubs' | 'fg_equipment' | 'fg_activewear';
 type VisaWorkPermitSubCategory = 'vwp_medical_exam' | 'vwp_residence_id' | 'vwp_visa_renewal' | 'vwp_work_permit';
 type RemittanceSubCategory = 'rm_business_capital' | 'rm_house_repair' | 'rm_kids_education' | 'rm_monthly_allowance' | 'rm_parents_support' | 'rm_siblings_education';
@@ -65,7 +67,8 @@ type SchoolExpenseSubCategory =
   | 'tuition_fee' | 'allowance' | 'school_project' | 'school_supplies' | 'school_service'
   | 'uniforms_clothing' | 'books_learning_materials' | 'school_transportation'
   | 'meals_allowance' | 'technology_gadgets' | 'field_trip'
-  | 'extracurricular_activities' | 'health_miscellaneous' | 'graduation';
+  | 'extracurricular_activities' | 'health_miscellaneous' | 'graduation'
+  | 'review' | 'training' | 'ojt';
 
 type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer' | 'e_wallet';
 type RecurringOption = 'none' | 'weekly' | 'monthly' | 'yearly';
@@ -121,6 +124,7 @@ const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string 
   { label: 'Vacation', value: 'vacation', icon: 'umbrella' },
   { label: 'Vehicle Maintenance', value: 'vehicle_maintenance', icon: 'car' },
   { label: 'Visa & Work Permit', value: 'visa_work_permit', icon: 'id-card-o' },
+  { label: 'Other Expense', value: 'other_expense', icon: 'archive' },
 ];
 
 const PAYMENT_METHODS: { label: string; value: PaymentMethod; icon: string }[] = [
@@ -176,10 +180,13 @@ const SCHOOL_EXPENSE_SUB_CATEGORIES: { label: string; value: SchoolExpenseSubCat
   { label: 'Graduation', value: 'graduation', icon: 'graduation-cap' },
   { label: 'Health & Miscellaneous', value: 'health_miscellaneous', icon: 'plus-square' },
   { label: 'Meals & Allowance', value: 'meals_allowance', icon: 'cutlery' },
+  { label: 'On-the-Job Training (OJT)', value: 'ojt', icon: 'briefcase' },
+  { label: 'Review', value: 'review', icon: 'book' },
   { label: 'School Project', value: 'school_project', icon: 'pencil' },
   { label: 'School Service', value: 'school_service', icon: 'bus' },
   { label: 'School Supplies', value: 'school_supplies', icon: 'pencil' },
   { label: 'Technology & Gadgets', value: 'technology_gadgets', icon: 'laptop' },
+  { label: 'Training', value: 'training', icon: 'tasks' },
   { label: 'Transportation', value: 'school_transportation', icon: 'bus' },
   { label: 'Tuition Fee', value: 'tuition_fee', icon: 'graduation-cap' },
   { label: 'Uniforms & Clothing', value: 'uniforms_clothing', icon: 'shopping-bag' },
@@ -682,6 +689,10 @@ export default function ExpensesScreen() {
       'visa_work_permit': 'Visa & Work Permit',
       'vwp_medical_exam': 'Visa & Work Permit', 'vwp_residence_id': 'Visa & Work Permit',
       'vwp_visa_renewal': 'Visa & Work Permit', 'vwp_work_permit': 'Visa & Work Permit',
+      'review': 'Review',
+      'training': 'Training',
+      'ojt': 'On-the-Job Training (OJT)',
+      'other_expense': 'Other Expense',
     };
 
     const mappedName = categoryMap[categoryName];
