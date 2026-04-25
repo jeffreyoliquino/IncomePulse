@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Account – BudgetBox</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #1a1a2e;
+      background: #f8fafc;
+      line-height: 1.7;
+    }
+    header {
+      background: #2563eb;
+      color: #fff;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    header p { font-size: 0.95rem; opacity: 0.85; }
+    main {
+      max-width: 680px;
+      margin: 40px auto;
+      padding: 0 24px 64px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #dbeafe;
+    }
+    p { margin-bottom: 12px; }
+    ol, ul { margin: 8px 0 12px 20px; }
+    li { margin-bottom: 8px; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .warning {
+      background: #fef2f2;
+      border-left: 4px solid #ef4444;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .warning p { margin: 0; color: #7f1d1d; font-size: 0.9rem; }
+    .email-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    .email-btn:hover { background: #1d4ed8; text-decoration: none; }
+    footer {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Delete Your Account</h1>
+  <p>BudgetBox &mdash; Personal Finance &amp; Budget Tracker</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>What gets deleted</h2>
+    <p>When you request account deletion, the following data will be <strong>permanently removed</strong> within <strong>30 days</strong>:</p>
+    <ul>
+      <li>Your account (email address and credentials)</li>
+      <li>All income and expense transaction records</li>
+      <li>All budget goals and spending limits</li>
+      <li>All household and settings data</li>
+    </ul>
+    <p>Data stored locally on your device will be cleared the next time you uninstall the app.</p>
+  </div>
+
+  <div class="card">
+    <div class="warning">
+      <p><strong>Warning:</strong> Account deletion is permanent and cannot be undone. All your financial data will be lost.</p>
+    </div>
+    <h2>How to request deletion</h2>
+    <p>Send an email to our support address with the subject line <strong>"Delete My Account"</strong>. Include the email address associated with your BudgetBox account.</p>
+    <ol>
+      <li>Tap the button below to open an email draft</li>
+      <li>Make sure the email address shown matches your BudgetBox account</li>
+      <li>Send the email — we will process your request within <strong>30 days</strong></li>
+      <li>You will receive a confirmation email once your account has been deleted</li>
+    </ol>
+    <a class="email-btn"
+       href="mailto:joliquino@gmail.com?subject=Delete%20My%20Account&body=Please%20delete%20my%20BudgetBox%20account%20and%20all%20associated%20data.%0A%0AAccount%20email%3A%20">
+      Request Account Deletion
+    </a>
+    <p style="margin-top:16px; font-size:0.85rem; color:#64748b;">
+      Or email us directly at <a href="mailto:joliquino@gmail.com">joliquino@gmail.com</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Data kept after deletion</h2>
+    <p>We do <strong>not</strong> retain any personal data after deletion. Anonymized, non-identifiable analytics (e.g., crash reports) may be retained for up to 90 days as required by our analytics provider.</p>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 BudgetBox. All rights reserved. &middot;
+  <a href="privacy-policy.html">Privacy Policy</a>
+</footer>
+
+</body>
+</html>
