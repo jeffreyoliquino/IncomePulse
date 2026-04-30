@@ -106,7 +106,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
   return (
-    <View className="mb-4" style={{ zIndex: isOpen ? 1000 : 1 }}>
+    <View className="mb-4">
       {label && (
         <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-300">
           {label}
@@ -147,8 +147,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
       {isOpen && (
         <View
-          className="absolute left-0 right-0 bg-white dark:bg-surface-800 rounded-xl border border-surface-300 dark:border-surface-600 mt-1 shadow-lg p-3"
-          style={{ top: label ? 68 : 48, zIndex: 1001 }}
+          className="bg-white dark:bg-surface-800 rounded-xl border border-surface-300 dark:border-surface-600 mt-1 p-3"
         >
           {viewMode === 'day' && (
             <>
