@@ -3,7 +3,7 @@ import { useTheme } from '@/src/lib/ThemeProvider';
 import { Stack, router } from 'expo-router';
 import { Image, Pressable, useWindowDimensions } from 'react-native';
 
-const logoImage = require('@/assets/images/LoginLogo-NoBG.png');
+const logoImage = require('@/assets/images/newlogo0425.png');
 
 export default function OnboardingLayout() {
   const { isDark } = useTheme();

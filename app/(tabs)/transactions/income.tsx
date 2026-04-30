@@ -2,6 +2,7 @@ import { Button, Card, DatePicker, Input, Select } from '@/src/components/ui';
 import { formatCurrency, formatDate } from '@/src/lib/formatters';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
+import { useTheme } from '@/src/lib/ThemeProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -72,6 +73,7 @@ const transactionSchema = z.object({
 type TransactionForm = z.infer<typeof transactionSchema>;
 
 export default function IncomeScreen() {
+  const { isDark } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
   const [incomeCategory, setIncomeCategory] = useState<IncomeCategory | null>(null);
   const [activeSource, setActiveSource] = useState<ActiveIncomeSource | null>(null);
@@ -501,17 +503,17 @@ export default function IncomeScreen() {
       {/* Add Income Modal */}
       {showAddModal && (
         <View
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, backgroundColor: '#ffffff' }}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, backgroundColor: isDark ? '#0f172a' : '#ffffff' }}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1"
           >
-            <View className="flex-row items-center justify-between border-b border-surface-200 px-4 py-4">
+            <View className="flex-row items-center justify-between border-b border-surface-200 dark:border-surface-700 px-4 py-4">
               <Pressable onPress={handleCloseModal}>
-                <Text className="text-base text-surface-500">Cancel</Text>
+                <Text className="text-base text-surface-500 dark:text-surface-400">Cancel</Text>
               </Pressable>
-              <Text className="text-lg font-bold text-surface-900">
+              <Text className="text-lg font-bold text-surface-900 dark:text-surface-100">
                 {editingTransaction ? 'Edit Income' : 'Add Income'}
               </Text>
               <View className="w-12" />

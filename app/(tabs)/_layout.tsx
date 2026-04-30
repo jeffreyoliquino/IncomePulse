@@ -4,7 +4,7 @@ import { router, Tabs } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
 
-const logoImage = require('@/assets/images/incompulse-header-logo-0226.png');
+const logoImage = require('@/assets/images/newlogo0425.png');
 
 const FINANCES_MENU = [
   { label: 'Overview',    icon: 'th-large',    color: '#d97706', route: '/(tabs)/transactions' },

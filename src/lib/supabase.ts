@@ -1,7 +1,10 @@
-import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+
+if (Platform.OS !== 'web') {
+  require('react-native-url-polyfill/auto');
+}
 
 const ExpoSecureStoreAdapter = {
   getItem: async (key: string) => {
@@ -62,6 +65,9 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: Platform.OS === 'web',
+      ...(Platform.OS === 'web' && {
+        lock: <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => fn(),
+      }),
     },
   }
 );

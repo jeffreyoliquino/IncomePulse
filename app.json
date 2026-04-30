@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "BudgetBox",
+    "name": "Ipon ProMax",
     "slug": "BudgetBox",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.budgetbox.app",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Use Face ID to securely sign in to BudgetBox",
+        "NSFaceIDUsageDescription": "Use Face ID to securely sign in to Ipon ProMax",
         "NSCameraUsageDescription": "Scan receipts and bills with your camera",
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -43,7 +43,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/incompulse-header-logo-0226.png"
+      "favicon": "./assets/images/newlogo0425.png"
     },
     "plugins": [
       "expo-router",
@@ -51,13 +51,13 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow BudgetBox to use Face ID for authentication"
+          "faceIDPermission": "Allow Ipon ProMax to use Face ID for authentication"
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow BudgetBox to use the camera to scan receipts"
+          "cameraPermission": "Allow Ipon ProMax to use the camera to scan receipts"
         }
       ],
       [

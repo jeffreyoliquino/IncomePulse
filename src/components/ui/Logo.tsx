@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 
-const logoImage = require('@/assets/images/LoginLogo-NoBG.png');
+const logoImage = require('@/assets/images/newlogo0425.png');
 
 interface LogoProps {
   mobileSize?: number;

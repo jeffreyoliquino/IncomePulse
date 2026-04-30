@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, Modal, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTheme } from '@/src/lib/ThemeProvider';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -32,6 +33,7 @@ export const Select: React.FC<SelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const { isDark } = useTheme();
 
   const selectedOption = options.find((opt) => opt.value === value);
   const borderColor = error
@@ -88,14 +90,14 @@ export const Select: React.FC<SelectProps> = ({
           onPress={() => setIsOpen(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View style={{ backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: insets.bottom + 16 }}>
+            <View style={{ backgroundColor: isDark ? '#1e293b' : '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: insets.bottom + 16 }}>
               {/* Handle bar */}
               <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}>
-                <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#cbd5e1' }} />
+                <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: isDark ? '#475569' : '#cbd5e1' }} />
               </View>
               {/* Title */}
               {label && (
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#0f172a', paddingHorizontal: 20, paddingBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: isDark ? '#f1f5f9' : '#0f172a', paddingHorizontal: 20, paddingBottom: 12 }}>
                   {label}
                 </Text>
               )}
@@ -113,8 +115,8 @@ export const Select: React.FC<SelectProps> = ({
                       paddingHorizontal: 20,
                       paddingVertical: 14,
                       borderBottomWidth: index < options.length - 1 ? 1 : 0,
-                      borderBottomColor: '#f1f5f9',
-                      backgroundColor: value === option.value ? '#eff6ff' : 'transparent',
+                      borderBottomColor: isDark ? '#334155' : '#f1f5f9',
+                      backgroundColor: value === option.value ? (isDark ? '#1e3a5f' : '#eff6ff') : 'transparent',
                     }}
                   >
                     {option.icon && (
@@ -128,7 +130,7 @@ export const Select: React.FC<SelectProps> = ({
                     <Text style={{
                       flex: 1,
                       fontSize: 16,
-                      color: value === option.value ? '#2563eb' : '#374151',
+                      color: value === option.value ? '#2563eb' : (isDark ? '#cbd5e1' : '#374151'),
                       fontWeight: value === option.value ? '600' : '400',
                     }}>
                       {option.label}
