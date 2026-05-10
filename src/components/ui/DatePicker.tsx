@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, Platform, View, Text, Pressable, ScrollView } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface DatePickerProps {
@@ -8,6 +8,7 @@ interface DatePickerProps {
   onChange: (date: string) => void;
   error?: string;
   placeholder?: string;
+  scrollViewRef?: React.RefObject<ScrollView | null>;
 }
 
 const MONTHS = [
@@ -21,9 +22,34 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   onChange,
   error,
   placeholder = 'Select date',
+  scrollViewRef,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'day' | 'month' | 'year'>('day');
+  const containerRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    if (!isOpen || !scrollViewRef?.current || !containerRef.current) return;
+    const timer = setTimeout(() => {
+      if (!scrollViewRef.current) return;
+      containerRef.current?.measureLayout(
+        scrollViewRef.current as any,
+        (_left, top, _width, height) => {
+          // height already includes the open calendar; scroll so its bottom is visible
+          const { height: windowHeight } = Dimensions.get('window');
+          const CHROME_HEIGHT = 160;
+          const visibleHeight = windowHeight - CHROME_HEIGHT;
+          const targetY = top + height - visibleHeight + 32;
+          if (targetY > 0) {
+            scrollViewRef.current?.scrollTo({ y: targetY, animated: true });
+          }
+        },
+        () => {}
+      );
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
   // Parse current value or use today
   const parseDate = (dateStr: string) => {
@@ -106,9 +132,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
   return (
-    <View className="mb-4">
+    <View ref={containerRef} className="mb-4">
       {label && (
-        <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-300">
+        <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-100">
           {label}
         </Text>
       )}
@@ -186,56 +212,60 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 ))}
               </View>
 
-              {/* Days Grid */}
-              <View className="flex-row flex-wrap">
-                {/* Empty cells for days before first day */}
-                {Array.from({ length: firstDay }).map((_, i) => (
-                  <View key={`empty-${i}`} style={{ width: '14.28%', height: 36 }} />
-                ))}
-                {/* Actual days */}
-                {Array.from({ length: daysInMonth }).map((_, i) => {
-                  const day = i + 1;
-                  const isSelected =
-                    day === selectedDay &&
-                    displayMonth === selectedMonth &&
-                    displayYear === selectedYear;
-                  const isToday =
-                    day === new Date().getDate() &&
-                    displayMonth === new Date().getMonth() &&
-                    displayYear === new Date().getFullYear();
-
-                  return (
-                    <Pressable
-                      key={day}
-                      onPress={() => handleDaySelect(day)}
-                      style={{ width: '14.28%', height: 36 }}
-                      className="items-center justify-center"
-                    >
-                      <View
-                        className={`w-8 h-8 items-center justify-center rounded-full ${
-                          isSelected
-                            ? 'bg-primary-600'
-                            : isToday
-                            ? 'bg-primary-100'
-                            : ''
-                        }`}
-                      >
-                        <Text
-                          className={`text-sm ${
-                            isSelected
-                              ? 'text-white font-bold'
-                              : isToday
-                              ? 'text-primary-600 font-medium'
-                              : 'text-surface-700 dark:text-surface-300'
-                          }`}
+              {/* Days Grid — explicit rows avoid flex-wrap height issues on Android */}
+              {(() => {
+                const totalCells = firstDay + daysInMonth;
+                const numRows = Math.ceil(totalCells / 7);
+                const today = new Date();
+                return Array.from({ length: numRows }).map((_, rowIndex) => (
+                  <View key={rowIndex} style={{ flexDirection: 'row', height: 36 }}>
+                    {Array.from({ length: 7 }).map((_, colIndex) => {
+                      const cellIndex = rowIndex * 7 + colIndex;
+                      const day = cellIndex - firstDay + 1;
+                      if (day < 1 || day > daysInMonth) {
+                        return <View key={colIndex} style={{ flex: 1 }} />;
+                      }
+                      const isSelected =
+                        day === selectedDay &&
+                        displayMonth === selectedMonth &&
+                        displayYear === selectedYear;
+                      const isToday =
+                        day === today.getDate() &&
+                        displayMonth === today.getMonth() &&
+                        displayYear === today.getFullYear();
+                      return (
+                        <Pressable
+                          key={colIndex}
+                          onPress={() => handleDaySelect(day)}
+                          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
                         >
-                          {day}
-                        </Text>
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </View>
+                          <View
+                            className={`w-8 h-8 items-center justify-center rounded-full ${
+                              isSelected
+                                ? 'bg-primary-600'
+                                : isToday
+                                ? 'bg-primary-100'
+                                : ''
+                            }`}
+                          >
+                            <Text
+                              className={`text-sm ${
+                                isSelected
+                                  ? 'text-white font-bold'
+                                  : isToday
+                                  ? 'text-primary-600 font-medium'
+                                  : 'text-surface-700 dark:text-surface-300'
+                              }`}
+                            >
+                              {day}
+                            </Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ));
+              })()}
 
               {/* Quick Actions */}
               <View className="flex-row justify-between mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">

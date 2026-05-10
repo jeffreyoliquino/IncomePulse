@@ -1,28 +1,28 @@
+import { Button, Card, Input, Select } from '@/src/components/ui';
+import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
+import { supabase } from '@/src/lib/supabase';
+import { useTransactionStore } from '@/src/stores/transactionStore';
+import type { TransactionType } from '@/src/types/database';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CameraView } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
+  ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
 } from 'react-native';
-import { CameraView } from 'expo-camera';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useForm, Controller, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Input, Card, Select } from '@/src/components/ui';
-import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
-import { useTransactionStore } from '@/src/stores/transactionStore';
-import { supabase } from '@/src/lib/supabase';
-import * as ImagePicker from 'expo-image-picker';
 import { useCamera } from './hooks/useCamera';
 import { extractReceiptData } from './services/receiptOCRService';
-import type { TransactionType } from '@/src/types/database';
 
 // Same list as expenses.tsx — keeps categories in sync
 const EXPENSE_CATEGORIES: { label: string }[] = [
@@ -37,7 +37,7 @@ const EXPENSE_CATEGORIES: { label: string }[] = [
   { label: 'Toll Gate' },
   { label: 'Travel' },
   { label: 'Vehicle Maintenance' },
-  { label: 'House Maintenance' },
+  { label: 'Household Expenses' },
   { label: 'Online Shopping' },
   { label: 'Vacation' },
   { label: 'Dining' },

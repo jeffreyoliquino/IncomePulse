@@ -54,11 +54,17 @@ export default function TabLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <Pressable onPress={() => router.push('/(tabs)/dashboard')} style={{ marginLeft: 15 }}>
-              <Image
-                source={logoImage}
-                style={{ width: 58, height: 58 }}
-                resizeMode="contain"
-              />
+              <View style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 10,
+                padding: 2,
+              }}>
+                <Image
+                  source={logoImage}
+                  style={{ width: 54, height: 54 }}
+                  resizeMode="contain"
+                />
+              </View>
             </Pressable>
           ),
         }}

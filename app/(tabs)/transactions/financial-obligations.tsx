@@ -6,7 +6,7 @@ import { formatCurrency, formatDate } from '@/src/lib/formatters';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -20,7 +20,7 @@ import {
 import { z } from 'zod';
 
 // Categories
-type ObligationCategory = 'loans' | 'credit_cards' | 'insurance' | 'taxes';
+type ObligationCategory = 'loans' | 'credit_cards' | 'insurance' | 'taxes' | 'school_tuition_fees';
 type LoanType = 'land_lot_financing' | 'housing_loan' | 'car_loan' | 'house_lot_loan' | 'property_loan' | 'personal_loan' | 'salary_loan' | 'sss_loan' | 'pagibig_loan' | 'friend_family_loan' | 'suking_tindahan_loan';
 type InsuranceType = 'life_insurance' | 'health_insurance' | 'car_insurance' | 'house_insurance';
 type TaxType = 'real_estate_tax' | 'property_tax' | 'income_tax';
@@ -30,6 +30,7 @@ const OBLIGATION_CATEGORIES: { label: string; value: ObligationCategory; icon: s
   { label: 'Credit Cards', value: 'credit_cards', icon: 'credit-card' },
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
+  { label: 'School Tuition Fees and Expenses', value: 'school_tuition_fees', icon: 'graduation-cap' },
 ];
 
 const LOAN_TYPES: { label: string; value: LoanType; icon: string }[] = [
@@ -103,6 +104,7 @@ export default function FinancialObligationsScreen() {
   const [showLandLotModal, setShowLandLotModal] = useState(false);
   const [editingLandLotTransaction, setEditingLandLotTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const formScrollViewRef = useRef<ScrollView>(null);
   const [showMarkAsPaidModal, setShowMarkAsPaidModal] = useState(false);
   const [obligationToMarkPaid, setObligationToMarkPaid] = useState<any>(null);
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -730,7 +732,7 @@ export default function FinancialObligationsScreen() {
               <View className="w-12" />
             </View>
 
-            <ScrollView className="flex-1 px-4 pt-4">
+            <ScrollView ref={formScrollViewRef} className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 420 }}>
               {/* Category Selection */}
               <View style={{ zIndex: 100 }}>
                 <Select
@@ -874,6 +876,7 @@ export default function FinancialObligationsScreen() {
                       value={value}
                       onChange={onChange}
                       error={errors.date?.message}
+                      scrollViewRef={formScrollViewRef}
                     />
                   </View>
                 )}

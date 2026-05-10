@@ -5,7 +5,7 @@ import { formatCurrency, formatDate } from '@/src/lib/formatters';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -18,7 +18,7 @@ import {
 import { z } from 'zod';
 
 // Fund Categories
-type FundCategory = 'emergency_fund' | 'savings' | 'travel_fund' | 'sinking_fund' | 'education_fund' | 'retirement_fund' | 'gadget_fund' | 'car_fund' | 'house_fund' | 'others';
+type FundCategory = 'emergency_fund' | 'savings' | 'travel_fund' | 'sinking_fund' | 'education_fund' | 'retirement_fund' | 'gadget_fund' | 'car_fund' | 'house_fund' | 'life_insurance_fund' | 'dental_care_fund' | 'others';
 
 const FUND_CATEGORIES: { label: string; value: FundCategory; icon: string }[] = [
   { label: 'Emergency Fund', value: 'emergency_fund', icon: 'exclamation-triangle' },
@@ -26,7 +26,7 @@ const FUND_CATEGORIES: { label: string; value: FundCategory; icon: string }[] = 
   { label: 'Retirement Fund', value: 'retirement_fund', icon: 'hourglass-end' },
   { label: 'Life/Health Insurance Fund', value: 'life_insurance_fund', icon: 'heartbeat' },
   { label: 'Dental Care Fund', value: 'dental_care_fund', icon: 'medkit' },  
-  { label: 'House Maintenance', value: 'house_fund', icon: 'home' },
+  { label: 'Household Expenses', value: 'house_fund', icon: 'home' },
   { label: 'Vehicle Maintenance', value: 'car_fund', icon: 'car' },
   { label: 'Travel Fund', value: 'travel_fund', icon: 'plane' },
   { label: 'Sinking Fund', value: 'sinking_fund', icon: 'anchor' },
@@ -49,6 +49,7 @@ export default function FundsScreen() {
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
+  const formScrollViewRef = useRef<ScrollView>(null);
 
   const {
     transactions,
@@ -435,7 +436,7 @@ export default function FundsScreen() {
               <View className="w-12" />
             </View>
 
-            <ScrollView className="flex-1 px-4 pt-4">
+            <ScrollView ref={formScrollViewRef} className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 420 }}>
               {/* Category Selection */}
               <View style={{ zIndex: 100 }}>
                 <Select
@@ -491,6 +492,7 @@ export default function FundsScreen() {
                       value={value}
                       onChange={onChange}
                       error={errors.date?.message}
+                      scrollViewRef={formScrollViewRef}
                     />
                   </View>
                 )}

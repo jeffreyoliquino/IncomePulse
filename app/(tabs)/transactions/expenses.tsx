@@ -2,13 +2,13 @@ import { Button, Card, DatePicker, Input, Select } from '@/src/components/ui';
 import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import { useTransactionSync } from '@/src/features/transactions/hooks/useTransactionSync';
 import { formatCurrency, formatDate } from '@/src/lib/formatters';
-import { useTheme } from '@/src/lib/ThemeProvider';
 import { supabase } from '@/src/lib/supabase';
+import { useTheme } from '@/src/lib/ThemeProvider';
 import { useTransactionStore } from '@/src/stores/transactionStore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -24,7 +24,7 @@ import { z } from 'zod';
 type ExpenseCategory =
   | 'food_groceries' | 'pet_supplies' | 'pet_care' | 'dining' | 'shopping' | 'transportation'
   | 'gas' | 'toll_gate' | 'travel' | 'vehicle_maintenance' | 'house_maintenance'
-  | 'gardening' | 'utilities' | 'healthcare' | 'entertainment' | 'cellphone_load'
+  | 'household_expenses' | 'gardening' | 'utilities' | 'healthcare' | 'entertainment' | 'cellphone_load'
   | 'online_shopping' | 'insurance' | 'emergency_fund' | 'vacation' | 'rent'
   | 'taxes' | 'tuition_fee' | 'school_service' | 'school_supplies' | 'allowance'
   | 'school_project' | 'tuition_and_school_expenses'
@@ -74,6 +74,7 @@ type SchoolExpenseSubCategory =
 type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'bank_transfer' | 'e_wallet';
 type RecurringOption = 'none' | 'weekly' | 'monthly' | 'yearly';
 type RentSubCategory = 'lot' | 'house' | 'apartment' | 'condo' | 'store_rent' | 'warehouse_rent' | 'office_space' | 'commercial_space' | 'car' | 'parking_space';
+type HouseholdSubCategory = 'house_maintenance_repairs' | 'furniture' | 'appliances' | 'others';
 type UtilitySubCategory = 'electricity' | 'water' | 'internet';
 type TransportationSubCategory =
   | 'tricycle' | 'jeepney' | 'bus' | 'rail_transport' | 'uv_express'
@@ -106,7 +107,7 @@ const EXPENSE_CATEGORIES: { label: string; value: ExpenseCategory; icon: string 
   { label: 'Gardening Needs', value: 'gardening', icon: 'leaf' },
   { label: 'Gas/Fuel', value: 'gas', icon: 'tint' },
   { label: 'Healthcare', value: 'healthcare', icon: 'medkit' },
-  { label: 'House Maintenance', value: 'house_maintenance', icon: 'wrench' },
+  { label: 'Household Expenses', value: 'household_expenses', icon: 'wrench' },
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Leisure', value: 'leisure', icon: 'gamepad' },
   { label: 'License, Registration and Certification', value: 'license_registration_certification', icon: 'id-card-o' },
@@ -158,6 +159,13 @@ const E_WALLET_PROVIDERS: { label: string; value: EWalletProvider; icon: string 
   { label: 'Dragonpay', value: 'dragonpay', icon: 'mobile' },
   { label: 'PDAX Wallet', value: 'pdax', icon: 'mobile' },
   { label: 'Others', value: 'others', icon: 'question-circle' },
+];
+
+const HOUSEHOLD_SUB_CATEGORIES: { label: string; value: HouseholdSubCategory; icon: string }[] = [
+  { label: 'House Maintenance/Repairs', value: 'house_maintenance_repairs', icon: 'wrench' },
+  { label: 'Furniture', value: 'furniture', icon: 'th-large' },
+  { label: 'Appliances', value: 'appliances', icon: 'plug' },
+  { label: 'Others', value: 'others', icon: 'ellipsis-h' },
 ];
 
 const RENT_SUB_CATEGORIES: { label: string; value: RentSubCategory; icon: string }[] = [
@@ -387,6 +395,7 @@ export default function ExpensesScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory | null>(null);
   const [rentSubCategory, setRentSubCategory] = useState<RentSubCategory | null>(null);
+  const [householdSubCategory, setHouseholdSubCategory] = useState<HouseholdSubCategory | null>(null);
   const [utilitySubCategory, setUtilitySubCategory] = useState<UtilitySubCategory | null>(null);
   const [utilityProvider, setUtilityProvider] = useState<string | null>(null);
   const [transportationSubCategory, setTransportationSubCategory] = useState<TransportationSubCategory | null>(null);
@@ -406,6 +415,7 @@ export default function ExpensesScreen() {
   const [recurringOption, setRecurringOption] = useState<RecurringOption>('none');
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const formScrollViewRef = useRef<ScrollView>(null);
 
   const {
     transactions,
@@ -505,6 +515,11 @@ export default function ExpensesScreen() {
         if (subLabel) parts.push(`Type: ${subLabel}`);
       }
 
+      if (expenseCategory === 'household_expenses' && householdSubCategory) {
+        const subLabel = HOUSEHOLD_SUB_CATEGORIES.find(s => s.value === householdSubCategory)?.label;
+        if (subLabel) parts.push(`Type: ${subLabel}`);
+      }
+
       if (expenseCategory === 'utilities' && utilitySubCategory) {
         const subLabel = UTILITY_SUB_CATEGORIES.find(s => s.value === utilitySubCategory)?.label;
         if (subLabel) parts.push(`Type: ${subLabel}`);
@@ -587,6 +602,7 @@ export default function ExpensesScreen() {
   const resetState = () => {
     setExpenseCategory(null);
     setRentSubCategory(null);
+    setHouseholdSubCategory(null);
     setUtilitySubCategory(null);
     setUtilityProvider(null);
     setTransportationSubCategory(null);
@@ -640,7 +656,8 @@ export default function ExpensesScreen() {
       'toll_gate': 'Toll Gate',
       'travel': 'Travel',
       'vehicle_maintenance': 'Vehicle Maintenance',
-      'house_maintenance': 'House Maintenance',
+      'house_maintenance': 'Household Expenses',
+      'household_expenses': 'Household Expenses',
       'gardening': 'Gardening Needs',
       'utilities': 'Utilities',
       'healthcare': 'Healthcare',
@@ -760,7 +777,7 @@ export default function ExpensesScreen() {
       'Travel': 'travel',
       'Vehicle Maintenance': 'vehicle_maintenance',
       'Car Maintenance': 'vehicle_maintenance',
-      'House Maintenance': 'house_maintenance',
+      'Household Expenses': 'household_expenses',
       'Gardening Needs': 'gardening',
       'Utilities': 'utilities',
       'Healthcare': 'healthcare',
@@ -819,6 +836,15 @@ export default function ExpensesScreen() {
     if (notes.includes('Recurring: Yearly')) return 'yearly';
 
     return 'none';
+  };
+
+  const parseNotesForHouseholdSubCategory = (notes: string | null): HouseholdSubCategory | null => {
+    if (!notes) return null;
+    if (notes.includes('Type: House Maintenance/Repairs')) return 'house_maintenance_repairs';
+    if (notes.includes('Type: Furniture')) return 'furniture';
+    if (notes.includes('Type: Appliances')) return 'appliances';
+    if (notes.includes('Type: Others')) return 'others';
+    return null;
   };
 
   const parseNotesForRentSubCategory = (notes: string | null): RentSubCategory | null => {
@@ -1032,6 +1058,9 @@ export default function ExpensesScreen() {
         if (rentSub) {
           setRentSubCategory(rentSub);
         }
+      } else if (expenseCat === 'household_expenses') {
+        const householdSub = parseNotesForHouseholdSubCategory(transaction.notes);
+        if (householdSub) setHouseholdSubCategory(householdSub);
       } else if (expenseCat === 'utilities') {
         const utilitySub = parseNotesForUtilitySubCategory(transaction.notes);
         if (utilitySub) {
@@ -1371,7 +1400,7 @@ export default function ExpensesScreen() {
               <View className="w-12" />
             </View>
 
-            <ScrollView className="flex-1 px-4 pt-4">
+            <ScrollView ref={formScrollViewRef} className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 420 }}>
               {/* Category Selection */}
               <View style={{ zIndex: 100 }}>
                 <Select
@@ -1500,6 +1529,19 @@ export default function ExpensesScreen() {
                     options={RENT_SUB_CATEGORIES}
                     value={rentSubCategory}
                     onValueChange={(value) => setRentSubCategory(value as RentSubCategory)}
+                    iconColor="#dc2626"
+                  />
+                </View>
+              )}
+
+              {expenseCategory === 'household_expenses' && (
+                <View style={{ zIndex: 95 }}>
+                  <Select
+                    label="Household Type"
+                    placeholder="Select type"
+                    options={HOUSEHOLD_SUB_CATEGORIES}
+                    value={householdSubCategory}
+                    onValueChange={(value) => setHouseholdSubCategory(value as HouseholdSubCategory)}
                     iconColor="#dc2626"
                   />
                 </View>
@@ -1745,6 +1787,7 @@ export default function ExpensesScreen() {
                       value={value}
                       onChange={onChange}
                       error={errors.date?.message}
+                      scrollViewRef={formScrollViewRef}
                     />
                   </View>
                 )}

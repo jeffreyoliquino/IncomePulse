@@ -17,7 +17,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     return (
       <View className="mb-4">
         {label && (
-          <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-300">
+          <Text className="mb-1.5 text-sm font-medium text-surface-700 dark:text-surface-100">
             {label}
           </Text>
         )}

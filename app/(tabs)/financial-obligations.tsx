@@ -20,7 +20,7 @@ import {
 import { z } from 'zod';
 
 // Categories
-type ObligationCategory = 'loans' | 'credit_cards' | 'insurance' | 'taxes';
+type ObligationCategory = 'loans' | 'credit_cards' | 'insurance' | 'taxes' | 'school_tuition_fees';
 type LoanType = 'land_lot_financing' | 'housing_loan' | 'car_loan' | 'house_lot_loan' | 'property_loan' | 'personal_loan' | 'salary_loan' | 'sss_loan' | 'pagibig_loan' | 'friend_family_loan' | 'suking_tindahan_loan';
 type InsuranceType = 'life_insurance' | 'health_insurance' | 'car_insurance' | 'house_insurance';
 type TaxType = 'real_estate_tax' | 'property_tax' | 'income_tax';
@@ -30,6 +30,7 @@ const OBLIGATION_CATEGORIES: { label: string; value: ObligationCategory; icon: s
   { label: 'Credit Cards', value: 'credit_cards', icon: 'credit-card' },
   { label: 'Insurance', value: 'insurance', icon: 'shield' },
   { label: 'Taxes', value: 'taxes', icon: 'file-text-o' },
+  { label: 'School Tuition Fees and Expenses', value: 'school_tuition_fees', icon: 'graduation-cap' },
 ];
 
 const LOAN_TYPES: { label: string; value: LoanType; icon: string }[] = [

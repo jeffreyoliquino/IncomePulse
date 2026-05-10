@@ -45,8 +45,8 @@ SELECT 'Vehicle Maintenance', 'expense', 'wrench', '#f97316', true, NULL
 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Vehicle Maintenance' AND type = 'expense' AND user_id IS NULL);
 
 INSERT INTO categories (name, type, icon, color, is_system, user_id)
-SELECT 'House Maintenance', 'expense', 'home', '#84cc16', true, NULL
-WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'House Maintenance' AND type = 'expense' AND user_id IS NULL);
+SELECT 'Household Expenses', 'expense', 'home', '#84cc16', true, NULL
+WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Household Expenses' AND type = 'expense' AND user_id IS NULL);
 
 INSERT INTO categories (name, type, icon, color, is_system, user_id)
 SELECT 'Gardening Needs', 'expense', 'leaf', '#22c55e', true, NULL

@@ -1,6 +1,6 @@
 import { useTheme } from '@/src/lib/ThemeProvider';
 import { Stack, router } from 'expo-router';
-import { Image, Pressable, useWindowDimensions } from 'react-native';
+import { Image, Pressable, View, useWindowDimensions } from 'react-native';
 
 const logoImage = require('@/assets/images/newlogo0425.png');
 
@@ -24,11 +24,13 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         headerLeft: () => (
           <Pressable onPress={() => router.push('/(tabs)/dashboard')} style={{ marginLeft: 15 }}>
-            <Image
-              source={logoImage}
-              style={{ width: logoSize, height: logoSize }}
-              resizeMode="contain"
-            />
+            <View style={{ backgroundColor: '#ffffff', borderRadius: 10, padding: 2 }}>
+              <Image
+                source={logoImage}
+                style={{ width: logoSize, height: logoSize }}
+                resizeMode="contain"
+              />
+            </View>
           </Pressable>
         ),
       }}

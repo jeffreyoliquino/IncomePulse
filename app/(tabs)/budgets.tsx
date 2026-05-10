@@ -14,7 +14,6 @@ import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -34,7 +33,7 @@ const EXPENSE_CATEGORIES = [
   { label: 'Toll Gate', value: 'Toll Gate', icon: 'road' },
   { label: 'Travel', value: 'Travel', icon: 'plane' },
   { label: 'Vehicle Maintenance', value: 'Vehicle Maintenance', icon: 'wrench' },
-  { label: 'House Maintenance', value: 'House Maintenance', icon: 'home' },
+  { label: 'Household Expenses', value: 'Household Expenses', icon: 'home' },
   { label: 'Online Shopping', value: 'Online Shopping', icon: 'shopping-cart' },
   { label: 'Vacation', value: 'Vacation', icon: 'sun-o' },
   { label: 'Dining', value: 'Dining', icon: 'cutlery' },
@@ -220,7 +219,7 @@ export default function BudgetsScreen() {
       'Toll Gate': 'Toll Gate',
       'Travel': 'Travel',
       'Vehicle Maintenance': 'Vehicle Maintenance',
-      'House Maintenance': 'House Maintenance',
+      'Household Expenses': 'Household Expenses',
       'Online Shopping': 'Online Shopping',
       'Vacation': 'Vacation',
       'Dining': 'Dining',
@@ -503,79 +502,82 @@ export default function BudgetsScreen() {
         <FontAwesome name="plus" size={24} color="#ffffff" />
       </Pressable>
 
-      {/* Add Budget Modal */}
-      <Modal visible={showAddModal} animationType="slide" presentationStyle="pageSheet">
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1 bg-white dark:bg-surface-900"
+      {/* Add Budget Form */}
+      {showAddModal && (
+        <View
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100 }}
+          className="bg-white dark:bg-surface-900"
         >
-          <View className="flex-row items-center justify-between border-b border-surface-200 dark:border-surface-700 px-4 py-4">
-            <Pressable onPress={() => {
-              setShowAddModal(false);
-              setEditingBudget(null);
-              reset({ category: '', amount: '' });
-            }}>
-              <Text className="text-base text-surface-500 dark:text-surface-400">Cancel</Text>
-            </Pressable>
-            <Text className="text-lg font-bold text-surface-900 dark:text-surface-100">{editingBudget ? 'Edit Budget' : 'Add Budget'}</Text>
-            <View className="w-12" />
-          </View>
-
-          <ScrollView className="flex-1 px-4 pt-4" keyboardShouldPersistTaps="handled">
-            <Controller
-              control={control}
-              name="category"
-              render={({ field: { onChange, value } }) => (
-                <View style={{ zIndex: 100 }}>
-                  <Select
-                    label="Category"
-                    placeholder="Select category"
-                    options={EXPENSE_CATEGORIES}
-                    value={value}
-                    onValueChange={onChange}
-                    error={errors.category?.message}
-                  />
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="amount"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Monthly Limit (PHP)"
-                  placeholder="0.00"
-                  keyboardType="decimal-pad"
-                  value={value}
-                  onChangeText={(text) => {
-                    // Only allow digits and a single decimal point
-                    const filtered = text.replace(/[^0-9.]/g, '');
-                    // Ensure only one decimal point
-                    const parts = filtered.split('.');
-                    const formatted = parts.length > 2
-                      ? parts[0] + '.' + parts.slice(1).join('')
-                      : filtered;
-                    onChange(formatted);
-                  }}
-                  onBlur={onBlur}
-                  error={errors.amount?.message}
-                  leftIcon={<Text className="text-base text-surface-400">₱</Text>}
-                />
-              )}
-            />
-
-            <View className="mb-8 mt-4">
-              <Button
-                title={editingBudget ? 'Update Budget' : 'Create Budget'}
-                onPress={handleSubmit(onSubmit)}
-                fullWidth
-                size="lg"
-              />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1"
+          >
+            <View className="flex-row items-center justify-between border-b border-surface-200 dark:border-surface-700 px-4 py-4">
+              <Pressable onPress={() => {
+                setShowAddModal(false);
+                setEditingBudget(null);
+                reset({ category: '', amount: '' });
+              }}>
+                <Text className="text-base text-surface-500 dark:text-surface-400">Cancel</Text>
+              </Pressable>
+              <Text className="text-lg font-bold text-surface-900 dark:text-surface-100">{editingBudget ? 'Edit Budget' : 'Add Budget'}</Text>
+              <View className="w-12" />
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </Modal>
+
+            <ScrollView className="flex-1 px-4 pt-4" keyboardShouldPersistTaps="handled">
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, value } }) => (
+                  <View style={{ zIndex: 100 }}>
+                    <Select
+                      label="Category"
+                      placeholder="Select category"
+                      options={EXPENSE_CATEGORIES}
+                      value={value}
+                      onValueChange={onChange}
+                      error={errors.category?.message}
+                    />
+                  </View>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    label="Monthly Limit (PHP)"
+                    placeholder="0.00"
+                    keyboardType="decimal-pad"
+                    value={value}
+                    onChangeText={(text) => {
+                      const filtered = text.replace(/[^0-9.]/g, '');
+                      const parts = filtered.split('.');
+                      const formatted = parts.length > 2
+                        ? parts[0] + '.' + parts.slice(1).join('')
+                        : filtered;
+                      onChange(formatted);
+                    }}
+                    onBlur={onBlur}
+                    error={errors.amount?.message}
+                    leftIcon={<Text className="text-base text-surface-400">₱</Text>}
+                  />
+                )}
+              />
+
+              <View className="mb-8 mt-4">
+                <Button
+                  title={editingBudget ? 'Update Budget' : 'Create Budget'}
+                  onPress={handleSubmit(onSubmit)}
+                  fullWidth
+                  size="lg"
+                />
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </View>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deletingBudget && (

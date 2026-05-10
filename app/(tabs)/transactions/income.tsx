@@ -6,7 +6,7 @@ import { useTheme } from '@/src/lib/ThemeProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -81,6 +81,7 @@ export default function IncomeScreen() {
   const [propertyType, setPropertyType] = useState<PropertyType | null>(null);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const formScrollViewRef = useRef<ScrollView>(null);
 
   const {
     transactions,
@@ -519,7 +520,7 @@ export default function IncomeScreen() {
               <View className="w-12" />
             </View>
 
-            <ScrollView className="flex-1 px-4 pt-4">
+            <ScrollView ref={formScrollViewRef} className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 420 }}>
               {/* Category Selection */}
               <View style={{ zIndex: 100 }}>
                 <Select
@@ -622,6 +623,7 @@ export default function IncomeScreen() {
                       value={value}
                       onChange={onChange}
                       error={errors.date?.message}
+                      scrollViewRef={formScrollViewRef}
                     />
                   </View>
                 )}

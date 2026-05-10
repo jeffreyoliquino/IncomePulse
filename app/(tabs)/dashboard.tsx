@@ -68,7 +68,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Toll Gate': '#64748b',
   'Travel': '#06b6d4',
   'Vehicle Maintenance': '#475569',
-  'House Maintenance': '#8b5cf6',
+  'Household Expenses': '#8b5cf6',
   'Online Shopping': '#ec4899',
   'Vacation': '#14b8a6',
   'Dining': '#f59e0b',

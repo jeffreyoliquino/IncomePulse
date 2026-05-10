@@ -5,7 +5,7 @@ import { useAuth } from '@/src/features/auth/hooks/useAuth';
 import type { TransactionType } from '@/src/types/database';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 type SortField = 'date' | 'amount' | 'description';
@@ -56,6 +56,7 @@ export default function AllTransactionsScreen() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const filterScrollViewRef = useRef<ScrollView>(null);
 
   const { transactions, deleteTransaction } = useTransactionSync();
   const { user } = useAuth();
@@ -283,7 +284,7 @@ export default function AllTransactionsScreen() {
             </Pressable>
           </View>
 
-          <ScrollView className="flex-1 px-4 pt-4">
+          <ScrollView ref={filterScrollViewRef} className="flex-1 px-4 pt-4">
             <View style={{ zIndex: 100 }}>
               <Select
                 label="Transaction Type"
@@ -312,6 +313,7 @@ export default function AllTransactionsScreen() {
                 value={filterFrom}
                 onChange={setFilterFrom}
                 placeholder="Start date"
+                scrollViewRef={filterScrollViewRef}
               />
             </View>
 
@@ -321,6 +323,7 @@ export default function AllTransactionsScreen() {
                 value={filterTo}
                 onChange={setFilterTo}
                 placeholder="End date"
+                scrollViewRef={filterScrollViewRef}
               />
             </View>
 
